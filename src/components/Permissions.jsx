@@ -14,7 +14,7 @@ function Permissions () {
     })
 
     function onChange ({ checked }) {
-        if (checked) {
+        if (checked && isBrowserSupportNotifications) {
             Notification.requestPermission(function (permission) {
                 setNotifcationPermission(permission)
                 console.log(permission)
