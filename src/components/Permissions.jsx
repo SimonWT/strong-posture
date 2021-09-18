@@ -1,11 +1,12 @@
 import React from "react";
-import { Switch } from 'ui-neumorphism'
-import { useHistory } from "react-router-dom";
+import { Switch, Button } from 'ui-neumorphism'
+import { useHistory, Link } from "react-router-dom";
 
 function Permissions () {
     const history = useHistory()
     console.log(Notification.permission)
-    const [notifcationPermission, setNotifcationPermission] = React.useState(Notification.permission);
+    const isBrowserSupportNotifications = "Notification" in window
+    const [notifcationPermission, setNotifcationPermission] = React.useState(isBrowserSupportNotifications ? Notification.permission : false);
 
     React.useEffect(() => {
         if (notifcationPermission === 'granted')
@@ -33,6 +34,12 @@ function Permissions () {
                     <Switch onChange={onChange} checked={notifcationPermission === 'granted'} color='var(--error)' color='var(--success)' label='Notifications' />
                 </li>
             </ul>
+            {!isBrowserSupportNotifications && 
+                <Link to="/action" className="no-underline" style={{marginTop: `${30}px`}}>
+                    <Button>Ok, next</Button>
+                </Link>
+            }
+
         </div>
     )
 }
