@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 import Timer from './Timer'
 import completedTask from '../assets/svg/completedTask.svg'
-import { ProgressLinear, Button } from 'ui-neumorphism'
+import { ProgressLinear, Button, Card, H1 } from 'ui-neumorphism'
 
 function Action () {
     const totalSeconds = 15 * 60
@@ -13,25 +13,35 @@ function Action () {
     const [isActive, setIsActive] = React.useState(false);
 
     React.useEffect(() => {
+        let timeoutId
         if (isActive) {
             if (seconds > 0) {
-                if (seconds % amountOfSecondsPerNotification === 0) {
+                if ((seconds % amountOfSecondsPerNotification === 0) && seconds !== totalSeconds) {
                     notify('Just remind you', 'Keep your posture correctly bruh')
                 }
-                setTimeout(() => setSeconds(seconds - 1), 1000);
+                timeoutId = setTimeout(() => { if (isActive) setSeconds(seconds - 1) }, 1000);
             } else {
                 notify('You are awesome!!!', 'Nice posture, bro 👊')
             }
+        } else {
+            // console.log('here', timeoutId)
+            clearTimeout(timeoutId)
         }
     });
 
     function playAgain () {
-        console.log('play again')
-        setSeconds(totalSeconds)
+        setSeconds(totalSeconds);
     }
 
-    function play() {
-        setIsActive(true)
+    function play () {
+        setIsActive(true);
+        setSeconds(totalSeconds);
+    }
+
+    function stop () {
+        console.log('stopped')
+        setIsActive(false)
+        setTimeout(() => setSeconds(totalSeconds), 1000);
     }
 
     function notify (text, body) {
@@ -63,16 +73,28 @@ function Action () {
                     <h1>Congrats!</h1>
                 </div>
             }
-            <div className="action-timer">
-                <Timer seconds={seconds} />
-                <span className="slash">/</span>
-                <span className="total-time">25:00</span>
-            </div>
+            {isActive && seconds > 0 &&
+                <h1 style={{marginBottom: 60 + 'px'}}> Keep you posture correctly! </h1>
+            }
+            <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
+                <div className="action-timer">
+                    <Timer seconds={seconds} />
+                    <span className="slash">/</span>
+                    <span className="total-time">{totalSeconds / 60}:00</span>
+                </div>
+            </Card>
             {isActive &&
-                <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')}></ProgressLinear>
+                <div>
+                    <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')}></ProgressLinear>
+                    {seconds > 0 &&
+                        <div className="btns-group" >
+                            <Button onClick={stop}>Stop</Button>
+                        </div>
+                    }
+                </div>
             }
             {
-              !isActive && 
+                !isActive &&
                 <Button onClick={play} className="main-big-button action-start">Start</Button>
             }
             {seconds <= 0 &&
