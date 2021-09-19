@@ -12,7 +12,7 @@ function Action (props) {
     const totalSeconds = 15 * 60
     const amountOfSecondsPerNotification = 3 * 60
     const amountOfSecondsPerImageToggle = 20
-    const amountOfSecondsPerAudio = 60
+    const amountOfSecondsPerAudio = 59
 
     const [seconds, setSeconds] = React.useState(totalSeconds);
     const [isActive, setIsActive] = React.useState(false);
