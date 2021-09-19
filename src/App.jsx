@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   BrowserRouter as Router,
   Switch,
@@ -12,15 +12,23 @@ import Permissions from './components/Permissions'
 
 
 function App () {
+
+  const [permissions, setPermissions] = useState({ 
+    notifications: false,
+    sound: false,
+    video: false,
+    images: false
+   })  
+
   return (
     <Router>
       <div className="App">
         <Switch>
           <Route path="/action">
-            <Action />
+            <Action permissions={permissions} />
           </Route>
           <Route path="/permissions">
-            <Permissions />
+            <Permissions setPermissions={setPermissions} permissions={permissions} />
           </Route>
           <Route path="/">
             <Home />

@@ -2,15 +2,24 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import Timer from './Timer'
+import ConsequencesImages from './ConsequencesImages'
 import completedTask from '../assets/svg/completedTask.svg'
-import { ProgressLinear, Button, Card, H1 } from 'ui-neumorphism'
+import { ProgressLinear, Button, Card } from 'ui-neumorphism'
+import useAudio from '../utils/useAudio'
 
-function Action () {
+
+function Action (props) {
     const totalSeconds = 15 * 60
     const amountOfSecondsPerNotification = 3 * 60
+    const amountOfSecondsPerImageToggle = 20
+    const amountOfSecondsPerAudio = 10
 
     const [seconds, setSeconds] = React.useState(totalSeconds);
     const [isActive, setIsActive] = React.useState(false);
+
+    const badImgsRef = React.createRef();
+
+    const [toggleAudio] = useAudio()
 
     React.useEffect(() => {
         let timeoutId
@@ -18,6 +27,13 @@ function Action () {
             if (seconds > 0) {
                 if ((seconds % amountOfSecondsPerNotification === 0) && seconds !== totalSeconds) {
                     notify('Just remind you', 'Keep your posture correctly bruh')
+                }
+                if ((seconds % amountOfSecondsPerImageToggle === 0) && seconds !== totalSeconds) {
+                    toggleBadImages()
+                }
+                if (props.permissions.sound && (seconds % amountOfSecondsPerAudio === 0) && seconds !== totalSeconds) {
+                    console.log('here')
+                    toggleAudio()
                 }
                 timeoutId = setTimeout(() => { if (isActive) setSeconds(seconds - 1) }, 1000);
             } else {
@@ -65,8 +81,15 @@ function Action () {
         }
     }
 
+    function toggleBadImages () {
+        badImgsRef.current.toggle()
+    }
+
     return (
         <div className="action">
+            {props.permissions.images && isActive &&
+                <ConsequencesImages ref={badImgsRef} />
+            }
             {seconds <= 0 &&
                 <div className="congrats-head">
                     <img src={completedTask} alt="Congrats" />
@@ -74,7 +97,7 @@ function Action () {
                 </div>
             }
             {isActive && seconds > 0 &&
-                <h1 style={{marginBottom: 60 + 'px'}}> Keep you posture correctly! </h1>
+                <h1 style={{ marginBottom: 60 + 'px' }}> Keep you posture correctly! </h1>
             }
             <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
                 <div className="action-timer">

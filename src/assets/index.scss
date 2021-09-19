@@ -5,7 +5,7 @@ body {
   font-family: "Rubik", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f0f0f3;
+  background: #e4ebf5;
 }
 
 code {
@@ -21,6 +21,17 @@ code {
     font-weight: 500;
     font-size: 35px;
     line-height: 41px;
+  }
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  & img {
+    margin-bottom: 50px;
+    max-width: 450px;
+    border-radius: 20px;
   }
 }
 
@@ -102,8 +113,15 @@ code {
   width: 100%;
 }
 
-.permissions {
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.permissions {
+  flex-direction: column;
+  align-items: center;
 }
 
 .action-start {
@@ -115,4 +133,13 @@ code {
   display: flex;
   width: 100%;
   justify-content: center;
+}
+
+.bad-images {
+  & img {
+    max-width: 500px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    height: 200px;
+  }
 }
