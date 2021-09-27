@@ -133,7 +133,7 @@ function Action (props) {
                 </div>
             }
             {timerState === TIMER_ACTIVE && seconds > 0 &&
-                <h1 style={{ marginBottom: 60 + 'px' }}> Keep you posture correctly! </h1>
+                <h1 className="action-title"> Keep you posture correctly! </h1>
             }
 
             {timerState === TIMER_NULL ?
