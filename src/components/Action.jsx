@@ -1,63 +1,97 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import Timer from './Timer'
 import ConsequencesImages from './ConsequencesImages'
 import completedTask from '../assets/svg/completedTask.svg'
-import { ProgressLinear, Button, Card } from 'ui-neumorphism'
+import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
 import useAudio from '../utils/useAudio'
+
+const TIMER_PAUSED = 'TIMER_PAUSED'
+const TIMER_ACTIVE = 'TIMER_ACTIVE'
+const TIMER_NULL = 'TIMER_NULL'
+const TIMER_DONE = 'TIMER_DONE'
 
 
 function Action (props) {
-    const totalSeconds = 15 * 60
+    // const totalSeconds = 15 * 60
     const amountOfSecondsPerNotification = 3 * 60
     const amountOfSecondsPerImageToggle = 20
     const amountOfSecondsPerAudio = 40
 
+    const [totalSeconds, setTotalSeconds] = React.useState(15 * 60);
+    const [userTimerInput, setUserTimerInput] = React.useState(getSavedTimer())
     const [seconds, setSeconds] = React.useState(totalSeconds);
-    const [isActive, setIsActive] = React.useState(false);
+    const [timerId, setTimerId] = React.useState(null);
+    const [timerState, setTimerState] = React.useState(TIMER_NULL);
 
     const badImgsRef = React.createRef();
 
     const [toggleAudio] = useAudio()
 
-    React.useEffect(() => {
-        let timeoutId
-        if (isActive) {
+    function getSavedTimer() {
+        const lsValue = localStorage.getItem('user-timer-input') // "15:00"
+        return lsValue ?? "15:00"
+    }
+
+    useEffect(() => {
+        const opposite = totalSeconds - seconds
+        if (timerState === TIMER_ACTIVE) {
             if (seconds > 0) {
-                if ((seconds % amountOfSecondsPerNotification === 0) && seconds !== totalSeconds) {
+                if ((opposite % amountOfSecondsPerNotification === 0) && seconds !== totalSeconds) {
                     notify('Just remind you', 'Keep your posture correctly bruh')
                 }
-                if ((seconds % amountOfSecondsPerImageToggle === 0) && seconds !== totalSeconds) {
+                if ((opposite % amountOfSecondsPerImageToggle === 0) && seconds !== totalSeconds) {
                     toggleBadImages()
                 }
-                if (props.permissions.sound && (seconds % amountOfSecondsPerAudio === 0) && seconds !== totalSeconds) {
+                if (props.permissions.sound && (opposite % amountOfSecondsPerAudio === 0) && seconds !== totalSeconds) {
                     console.log('here')
                     toggleAudio()
                 }
-                timeoutId = setTimeout(() => { if (isActive) setSeconds(seconds - 1) }, 1000);
             } else {
+                setTimerState(TIMER_DONE)
                 notify('You are awesome!!!', 'Nice posture, bro 👊')
             }
-        } else {
-            // console.log('here', timeoutId)
-            clearTimeout(timeoutId)
         }
-    });
+    }, [seconds])
+
+    function getSeconsFromTime(time) {
+        let [minutes, seconds] = time.split(":")
+        return parseInt(minutes) * 60 + parseInt(seconds)
+    }
 
     function playAgain () {
         setSeconds(totalSeconds);
     }
 
+    function start () {
+        const seconds = getSeconsFromTime(userTimerInput)
+        setTotalSeconds(seconds)
+        setSeconds(seconds);
+        play()
+    }
+
     function play () {
-        setIsActive(true);
-        setSeconds(totalSeconds);
+        const intervalId = setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
+        setTimerId(intervalId)
+        setTimerState(TIMER_ACTIVE)
     }
 
     function stop () {
         console.log('stopped')
-        setIsActive(false)
-        setTimeout(() => setSeconds(totalSeconds), 1000);
+        setTimerState(TIMER_NULL)
+        clearInterval(timerId)
+        setSeconds(totalSeconds)
+    }
+
+    function pause () {
+        console.log('paused')
+        setTimerState(TIMER_PAUSED)
+        clearInterval(timerId)
+    }
+
+    function resume () {
+        play()
     }
 
     function notify (text, body) {
@@ -85,9 +119,19 @@ function Action (props) {
         badImgsRef.current.toggle()
     }
 
+    function onTimeInput($event) {
+        let value = $event.target.value
+        console.log('original value', value, typeof(value))
+        //Delete useless
+        // value = value.slice(0, 5)
+        // if(value.length <= 2) 
+        setUserTimerInput(value)
+        localStorage.setItem('user-timer-input', value)
+    }
+
     return (
         <div className="action">
-            {props.permissions.images && isActive &&
+            {props.permissions.images && timerState === TIMER_ACTIVE &&
                 <ConsequencesImages ref={badImgsRef} />
             }
             {seconds <= 0 &&
@@ -96,29 +140,46 @@ function Action (props) {
                     <h1>Congrats!</h1>
                 </div>
             }
-            {isActive && seconds > 0 &&
+            {timerState === TIMER_ACTIVE && seconds > 0 &&
                 <h1 style={{ marginBottom: 60 + 'px' }}> Keep you posture correctly! </h1>
             }
-            <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
-                <div className="action-timer">
-                    <Timer seconds={seconds} />
-                    <span className="slash">/</span>
-                    <span className="total-time">{totalSeconds / 60}:00</span>
-                </div>
-            </Card>
-            {isActive &&
+
+            {timerState === TIMER_NULL ?
+                <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput}></TextField>
+                :
+                <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
+                    <div className="action-timer">
+                        <Timer seconds={seconds} />
+                        <span className="slash">/</span>
+                        <span className="total-time">{totalSeconds / 60}:00</span>
+                    </div>
+                </Card>
+            }
+
+
+            {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
                     <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')}></ProgressLinear>
                     {seconds > 0 &&
                         <div className="btns-group" >
                             <Button onClick={stop}>Stop</Button>
+                            {timerState === TIMER_ACTIVE &&
+                                <IconButton className="play-resume" rounded text={false} onClick={pause}>
+                                    <img src="https://img.icons8.com/ios-glyphs/25/000000/pause--v1.png" />
+                                </IconButton>
+                            }
+                            {timerState === TIMER_PAUSED &&
+                                <IconButton className="play-resume" rounded text={false} onClick={resume}>
+                                    <img src="https://img.icons8.com/ios-glyphs/25/000000/play--v1.png" />
+                                </IconButton>
+                            }
                         </div>
                     }
                 </div>
             }
             {
-                !isActive &&
-                <Button onClick={play} className="main-big-button action-start">Start</Button>
+                timerState !== TIMER_ACTIVE && timerState !== TIMER_PAUSED &&
+                <Button onClick={start} className="main-big-button action-start">Start</Button>
             }
             {seconds <= 0 &&
                 <div className="congrats-bottom">
