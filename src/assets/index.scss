@@ -29,14 +29,27 @@ code {
   flex-direction: column;
   align-items: center;
   & img {
-    margin-bottom: 50px;
+    margin-bottom: 20px;
     max-width: 450px;
     border-radius: 20px;
   }
 }
 
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px;
+  margin-bottom: 60px;
+  .btn-icon {
+    width: 25px;
+    height: 25px;
+  }
+}
+
 .timer {
-  font-family: Rubik;
+  font-family: 'Rubik';
   font-style: normal;
   font-weight: 500;
   font-size: 50px;
@@ -49,7 +62,7 @@ code {
 }
 
 .slash {
-  font-family: Rubik;
+  font-family: 'Rubik';
   font-style: normal;
   font-weight: 500;
   font-size: 50px;
@@ -154,4 +167,26 @@ code {
     min-height: 60px;
     padding: 0px 26px;
   }
+}
+
+.notifications-settings {
+  list-style-type: none;
+  li {
+    display: flex;
+    // align-items: center;
+    justify-content: space-between;
+  }
+  .interval-input {
+    font-size: 14px;
+
+    ._3t8tT {
+      display: none;
+    }
+  }
+}
+
+.home-description {
+  margin-bottom: 30px;
+  padding: 20px;
+  max-width: 350px;
 }

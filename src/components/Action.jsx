@@ -6,6 +6,7 @@ import ConsequencesImages from './ConsequencesImages'
 import completedTask from '../assets/svg/completedTask.svg'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
 import useAudio from '../utils/useAudio'
+import { getSeconsFromTime } from '../utils/helpers'
 
 const TIMER_PAUSED = 'TIMER_PAUSED'
 const TIMER_ACTIVE = 'TIMER_ACTIVE'
@@ -15,9 +16,9 @@ const TIMER_DONE = 'TIMER_DONE'
 
 function Action (props) {
     // const totalSeconds = 15 * 60
-    const amountOfSecondsPerNotification = 3 * 60
-    const amountOfSecondsPerImageToggle = 20
-    const amountOfSecondsPerAudio = 40
+    // const amountOfSecondsPerNotification = 3 * 60
+    // const amountOfSecondsPerImageToggle = 20
+    // const amountOfSecondsPerAudio = 40
 
     const [totalSeconds, setTotalSeconds] = React.useState(15 * 60);
     const [userTimerInput, setUserTimerInput] = React.useState(getSavedTimer())
@@ -29,7 +30,7 @@ function Action (props) {
 
     const [toggleAudio] = useAudio()
 
-    function getSavedTimer() {
+    function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
         return lsValue ?? "15:00"
     }
@@ -38,14 +39,13 @@ function Action (props) {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
             if (seconds > 0) {
-                if ((opposite % amountOfSecondsPerNotification === 0) && seconds !== totalSeconds) {
+                if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                     notify('Just remind you', 'Keep your posture correctly bruh')
                 }
-                if ((opposite % amountOfSecondsPerImageToggle === 0) && seconds !== totalSeconds) {
+                if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
                     toggleBadImages()
                 }
-                if (props.permissions.sound && (opposite % amountOfSecondsPerAudio === 0) && seconds !== totalSeconds) {
-                    console.log('here')
+                if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
                     toggleAudio()
                 }
             } else {
@@ -54,11 +54,6 @@ function Action (props) {
             }
         }
     }, [seconds])
-
-    function getSeconsFromTime(time) {
-        let [minutes, seconds] = time.split(":")
-        return parseInt(minutes) * 60 + parseInt(seconds)
-    }
 
     function playAgain () {
         setSeconds(totalSeconds);
@@ -119,12 +114,9 @@ function Action (props) {
         badImgsRef.current.toggle()
     }
 
-    function onTimeInput($event) {
+    function onTimeInput ($event) {
         let value = $event.target.value
-        console.log('original value', value, typeof(value))
-        //Delete useless
-        // value = value.slice(0, 5)
-        // if(value.length <= 2) 
+        console.log('original value', value, typeof (value))
         setUserTimerInput(value)
         localStorage.setItem('user-timer-input', value)
     }
