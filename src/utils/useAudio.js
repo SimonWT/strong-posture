@@ -19,6 +19,7 @@ const useAudio = (props) => {
     source.start()
   }
 
+
   const getAudioBuffer = async (URL) => {
     var AudioContext = window.AudioContext || window.webkitAudioContext
     var context = new AudioContext() // Make it crossbrowser
@@ -44,11 +45,23 @@ const useAudio = (props) => {
     })
   }
 
+  function soundNotification() {
+    const sound = new Audio('https://firebasestorage.googleapis.com/v0/b/strong-posture.appspot.com/o/Minecraft%20Damage%20(Oof)%20-%20Sound%20Effect%20(HD).mp3?alt=media&token=c57ff8e1-ca58-42ed-bf7c-66ef86c64a0b');
+
+    const promise = sound.play();
+
+    if (promise !== undefined) {
+        promise.then(() => {}).catch(error => console.error);
+    }
+}
+
   const toggle = async () => {
     console.log('toggle')
-    const random = getRandomInt(urls.length - 1)
-    const audioStuff = await getAudioBuffer(urls[random])
-    play(audioStuff)
+    // const random = getRandomInt(urls.length - 1)
+    // const audioStuff = await getAudioBuffer(urls[random])
+    // play(audioStuff)
+
+    soundNotification()
   }
 
   return [toggle]

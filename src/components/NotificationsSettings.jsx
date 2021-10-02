@@ -25,6 +25,20 @@ function NotificationsSettings (props) {
     function onSoundChange ({ checked }) {
         setSoundPermission(checked)
         props.setPermissions({ ...props.permissions, sound: checked })
+
+        function unlockAudio() {
+            const sound = new Audio('https://firebasestorage.googleapis.com/v0/b/strong-posture.appspot.com/o/Minecraft%20Damage%20(Oof)%20-%20Sound%20Effect%20(HD).mp3?alt=media&token=c57ff8e1-ca58-42ed-bf7c-66ef86c64a0b');
+        
+            sound.play();
+            sound.pause();
+            sound.currentTime = 0;
+        
+            document.body.removeEventListener('click', unlockAudio)
+            document.body.removeEventListener('touchstart', unlockAudio)
+        }
+        
+        document.body.addEventListener('click', unlockAudio);
+        document.body.addEventListener('touchstart', unlockAudio);
     }
 
     function onVideoChange ({ checked }) {
