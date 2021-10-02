@@ -140,11 +140,7 @@ function Action (props) {
                 <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput}></TextField>
                 :
                 <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
-                    <div className="action-timer">
-                        <Timer seconds={seconds} />
-                        <span className="slash">/</span>
-                        <span className="total-time">{totalSeconds / 60}:00</span>
-                    </div>
+                    <Timer seconds={seconds} totalSeconds={totalSeconds} />
                 </Card>
             }
 

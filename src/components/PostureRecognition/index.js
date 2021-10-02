@@ -15,9 +15,7 @@ import {
   drawSkeleton,
   isMobile,
   toggleLoadingUI,
-  tryResNetButtonName,
-  tryResNetButtonText,
-  updateTryResNetButtonDatGuiCss,
+  tryResNetButtonName
 } from './util'
 
 const videoWidth = 600
@@ -54,16 +52,16 @@ async function setupCamera(videoElementId = 'video') {
 
   return new Promise((resolve) => {
     video.onloadedmetadata = () => {
-      resolve(video)
+      resolve({video, stream})
     }
   })
 }
 
 export async function loadVideo() {
-  const video = await setupCamera()
+  const {video, stream} = await setupCamera()
   video.play()
 
-  return video
+  return {video, stream}
 }
 
 const defaultQuantBytes = 2
@@ -77,7 +75,7 @@ const defaultResNetStride = 32
 const defaultResNetInputResolution = 250
 
 const guiState = {
-  algorithm: 'multi-pose',
+  algorithm: 'single-pose',
   input: {
     architecture: 'MobileNetV1',
     outputStride: defaultMobileNetStride,
@@ -499,7 +497,9 @@ function detectPoseInRealTime(video, net) {
     // End monitoring code for frames per second
     stats.end()
 
-    requestAnimationFrame(poseDetectionFrame)
+    setTimeout(() => requestAnimationFrame(poseDetectionFrame), 1000)
+
+    // requestAnimationFrame(poseDetectionFrame)
   }
 
   poseDetectionFrame()
