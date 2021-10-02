@@ -1,6 +1,7 @@
 import React from 'react'
 import { Switch, TextField } from 'ui-neumorphism'
 import { getSeconsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
+import useAudio from '../utils/useAudio'
 
 function NotificationsSettings (props) {
     const isBrowserSupportNotifications = ("Notification" in window) ? true : false
@@ -8,6 +9,8 @@ function NotificationsSettings (props) {
     const [soundPermission, setSoundPermission] = React.useState(props.permissions.sound);
     const [videoPermission, setVideoPermission] = React.useState(props.permissions.video);
     const [imagesPermission, setImagesPermission] = React.useState(props.permissions.images);
+
+    const [_, warmupAudio] = useAudio()
 
     function onNotificationsChange ({ checked }) {
         if (checked && isBrowserSupportNotifications) {
@@ -25,20 +28,21 @@ function NotificationsSettings (props) {
     function onSoundChange ({ checked }) {
         setSoundPermission(checked)
         props.setPermissions({ ...props.permissions, sound: checked })
+        warmupAudio(props.setAudioContext)
 
-        function unlockAudio() {
-            const sound = new Audio('https://firebasestorage.googleapis.com/v0/b/strong-posture.appspot.com/o/Minecraft%20Damage%20(Oof)%20-%20Sound%20Effect%20(HD).mp3?alt=media&token=c57ff8e1-ca58-42ed-bf7c-66ef86c64a0b');
+        // function unlockAudio() {
+        //     const sound = new Audio('https://firebasestorage.googleapis.com/v0/b/strong-posture.appspot.com/o/Minecraft%20Damage%20(Oof)%20-%20Sound%20Effect%20(HD).mp3?alt=media&token=c57ff8e1-ca58-42ed-bf7c-66ef86c64a0b');
         
-            sound.play();
-            sound.pause();
-            sound.currentTime = 0;
+        //     sound.play();
+        //     sound.pause();
+        //     sound.currentTime = 0;
         
-            document.body.removeEventListener('click', unlockAudio)
-            document.body.removeEventListener('touchstart', unlockAudio)
-        }
+        //     document.body.removeEventListener('click', unlockAudio)
+        //     document.body.removeEventListener('touchstart', unlockAudio)
+        // }
         
-        document.body.addEventListener('click', unlockAudio);
-        document.body.addEventListener('touchstart', unlockAudio);
+        // document.body.addEventListener('click', unlockAudio);
+        // document.body.addEventListener('touchstart', unlockAudio);
     }
 
     function onVideoChange ({ checked }) {

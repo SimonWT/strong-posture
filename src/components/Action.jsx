@@ -28,7 +28,7 @@ function Action (props) {
 
     const badImgsRef = React.createRef();
 
-    const [toggleAudio] = useAudio()
+    const [toggleAudio] = useAudio(props.setAudioContext)
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
@@ -46,7 +46,7 @@ function Action (props) {
                     toggleBadImages()
                 }
                 if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
-                    toggleAudio()
+                    toggleAudio(props.audioContext)
                 }
             } else {
                 setTimerState(TIMER_DONE)

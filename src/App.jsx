@@ -29,6 +29,8 @@ function App () {
     images: 20
   })
 
+  const [audioContext, setAudioContext] = useState(undefined)
+
   return (
     <Router>
       <div className="App">
@@ -37,15 +39,18 @@ function App () {
           permissions={permissions}
           timeIntervals={timeIntervals}
           setTimeIntervals={setTimeIntervals} 
+          setAudioContext={setAudioContext}
         />
         <Switch>
           <Route path="/action">
-            <Action permissions={permissions} timeIntervals={timeIntervals} />
+            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} />
           </Route>
           <Route path="/permissions">
             <Permissions
               setPermissions={setPermissions}
               permissions={permissions}
+              audioContext={audioContext}
+              setAudioContext={setAudioContext}
             />
           </Route>
           <Route path="/test">
