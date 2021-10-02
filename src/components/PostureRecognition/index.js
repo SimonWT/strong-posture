@@ -323,21 +323,21 @@ function detectPoseInRealTime(video, net) {
     if (guiState.changeToArchitecture) {
       // Important to purge variables and free up GPU memory
       guiState.net.dispose()
-      toggleLoadingUI(true)
+      // toggleLoadingUI(true)
       guiState.net = await posenet.load({
         architecture: guiState.changeToArchitecture,
         outputStride: guiState.outputStride,
         inputResolution: guiState.inputResolution,
         multiplier: guiState.multiplier,
       })
-      toggleLoadingUI(false)
+      // toggleLoadingUI(false)
       guiState.architecture = guiState.changeToArchitecture
       guiState.changeToArchitecture = null
     }
 
     if (guiState.changeToMultiplier) {
       guiState.net.dispose()
-      toggleLoadingUI(true)
+      // toggleLoadingUI(true)
       guiState.net = await posenet.load({
         architecture: guiState.architecture,
         outputStride: guiState.outputStride,
@@ -345,7 +345,7 @@ function detectPoseInRealTime(video, net) {
         multiplier: +guiState.changeToMultiplier,
         quantBytes: guiState.quantBytes,
       })
-      toggleLoadingUI(false)
+      // toggleLoadingUI(false)
       guiState.multiplier = +guiState.changeToMultiplier
       guiState.changeToMultiplier = null
     }
