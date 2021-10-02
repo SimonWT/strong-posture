@@ -62,6 +62,7 @@ function NotificationsSettings (props) {
 
     return (
         <ul className="notifications-settings">
+            <p> Notification </p>
             <li>
                 <Switch onChange={onNotificationsChange} checked={notifcationPermission === 'granted'} color='var(--success)' label='Notifications' />
                 {props.areShowInvervalInputs &&
@@ -75,16 +76,17 @@ function NotificationsSettings (props) {
                 }
             </li>
             <li>
-                <Switch onChange={onVideoChange} checked={videoPermission} color='var(--success)' label='Video' />
-                {props.areShowInvervalInputs &&
-                    <TextField className="interval-input" type="time" value={getStringTimeFromSeconds(props.timeIntervals.video)} onInput={($event) => onIntervalInput($event, 'video')} />
-                }
-            </li>
-            <li>
                 <Switch onChange={onImagesChange} checked={imagesPermission} color='var(--success)' label='Images' />
                 {props.areShowInvervalInputs &&
                     <TextField className="interval-input" type="time" value={getStringTimeFromSeconds(props.timeIntervals.images)} onInput={($event) => onIntervalInput($event, 'images')} />
                 }
+            </li>
+            <p> Tracking </p>
+            <li>
+                <Switch onChange={onVideoChange} checked={videoPermission} color='var(--success)' label='Video' />
+                {/* {props.areShowInvervalInputs &&
+                    <TextField className="interval-input" type="time" value={getStringTimeFromSeconds(props.timeIntervals.video)} onInput={($event) => onIntervalInput($event, 'video')} />
+                } */}
             </li>
         </ul>
     )

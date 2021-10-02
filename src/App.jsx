@@ -30,6 +30,7 @@ function App () {
   })
 
   const [audioContext, setAudioContext] = useState(undefined)
+  const [videoStream, setVideoStream] = useState(undefined)
 
   return (
     <Router>
@@ -43,7 +44,7 @@ function App () {
         />
         <Switch>
           <Route path="/action">
-            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} />
+            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext}  videoStream={videoStream}/>
           </Route>
           <Route path="/permissions">
             <Permissions
@@ -51,6 +52,7 @@ function App () {
               permissions={permissions}
               audioContext={audioContext}
               setAudioContext={setAudioContext}
+              setVideoStream={setVideoStream}
             />
           </Route>
           <Route path="/test">

@@ -1,12 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import Timer from './Timer'
 import ConsequencesImages from './ConsequencesImages'
-import completedTask from '../assets/svg/completedTask.svg'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
+import GameView from './Game/GameView'
+import PostureRecognition from "./PostureRecognition/PostureRecognition";
+
 import useAudio from '../utils/useAudio'
 import { getSeconsFromTime } from '../utils/helpers'
+
+import completedTask from '../assets/svg/completedTask.svg'
+import playIcon from '../assets/svg/play.svg'
+import pauseIcon from '../assets/svg/pause.svg'
+
 
 const TIMER_PAUSED = 'TIMER_PAUSED'
 const TIMER_ACTIVE = 'TIMER_ACTIVE'
@@ -15,11 +22,6 @@ const TIMER_DONE = 'TIMER_DONE'
 
 
 function Action (props) {
-    // const totalSeconds = 15 * 60
-    // const amountOfSecondsPerNotification = 3 * 60
-    // const amountOfSecondsPerImageToggle = 20
-    // const amountOfSecondsPerAudio = 40
-
     const [totalSeconds, setTotalSeconds] = React.useState(15 * 60);
     const [userTimerInput, setUserTimerInput] = React.useState(getSavedTimer())
     const [seconds, setSeconds] = React.useState(totalSeconds);
@@ -27,6 +29,8 @@ function Action (props) {
     const [timerState, setTimerState] = React.useState(TIMER_NULL);
 
     const badImgsRef = React.createRef();
+    const gameRef = useRef();
+    const recognitionRef = useRef()
 
     const [toggleAudio] = useAudio(props.setAudioContext)
 
@@ -70,6 +74,9 @@ function Action (props) {
         const intervalId = setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
         setTimerId(intervalId)
         setTimerState(TIMER_ACTIVE)
+
+        if(props.permissions.video)
+        recognitionRef.current.play()
     }
 
     function stop () {
@@ -77,12 +84,18 @@ function Action (props) {
         setTimerState(TIMER_NULL)
         clearInterval(timerId)
         setSeconds(totalSeconds)
+
+        if(props.permissions.video)
+        recognitionRef.current.stop()
     }
 
     function pause () {
         console.log('paused')
         setTimerState(TIMER_PAUSED)
         clearInterval(timerId)
+
+        if(props.permissions.video)
+        recognitionRef.current.stop()
     }
 
     function resume () {
@@ -110,6 +123,7 @@ function Action (props) {
         }
     }
 
+
     function toggleBadImages () {
         badImgsRef.current.toggle()
     }
@@ -121,10 +135,20 @@ function Action (props) {
         localStorage.setItem('user-timer-input', value)
     }
 
+    function emitIsPostureCorrect (payload) {
+        gameRef.current.somethingonposuture(payload)
+    }
+
     return (
         <div className="action">
-            {props.permissions.images && timerState === TIMER_ACTIVE &&
-                <ConsequencesImages ref={badImgsRef} />
+            {(props.permissions.video) ?
+                (
+                    <div><GameView ref={gameRef} />
+                    <PostureRecognition ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
+                )
+                :
+                (props.permissions.images && timerState === TIMER_ACTIVE &&
+                    <ConsequencesImages ref={badImgsRef} />)
             }
             {seconds <= 0 &&
                 <div className="congrats-head">
@@ -144,7 +168,6 @@ function Action (props) {
                 </Card>
             }
 
-
             {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
                     <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')}></ProgressLinear>
@@ -153,12 +176,12 @@ function Action (props) {
                             <Button onClick={stop}>Stop</Button>
                             {timerState === TIMER_ACTIVE &&
                                 <IconButton className="play-resume" rounded text={false} onClick={pause}>
-                                    <img src="https://img.icons8.com/ios-glyphs/25/000000/pause--v1.png" />
+                                    <img src={pauseIcon} />
                                 </IconButton>
                             }
                             {timerState === TIMER_PAUSED &&
                                 <IconButton className="play-resume" rounded text={false} onClick={resume}>
-                                    <img src="https://img.icons8.com/ios-glyphs/25/000000/play--v1.png" />
+                                    <img src={playIcon} />
                                 </IconButton>
                             }
                         </div>

@@ -1,18 +1,17 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 
 import { loadVideo } from './index'
 import { drawSkeleton, drawKeypoints, drawBoundingBox, isMobile } from './util'
 import * as posenet from '@tensorflow-models/posenet'
 
 
-function PostureRecognition (props) {
+const PostureRecognition = forwardRef((props, ref) => {
 
     const [isActive, setIsActive] = useState(false)
     const [stream, setStream] = useState(undefined)
     const [requestAnimationFrameIds, setRequestAnimationFrameIds] = useState([])
 
     function pushRequestId (id) {
-        console.log('new', id)
         setRequestAnimationFrameIds([...requestAnimationFrameIds, id])
         console.log(requestAnimationFrameIds)
     }
@@ -74,6 +73,18 @@ function PostureRecognition (props) {
             track.stop();
         });
     }
+
+    useImperativeHandle(ref, () => ({
+
+        play () {
+            play()
+        },
+
+        stop () {
+            stop()
+        }
+
+    }));
 
     function detectPoseInRealTime (video, net) {
         const canvas = document.getElementById('output')
@@ -176,8 +187,10 @@ function PostureRecognition (props) {
                     // else {
                     if (xuyna * (1 + alpha) < xShoulders) {
                         console.log('тварь выпрямись', xuyna, xShoulders)
+                        props.emitIsPostureCorrect(false)
                     } else {
                         console.log('хороший мальчик', xuyna, xShoulders)
+                        props.emitIsPostureCorrect(true)
                     }
                     // }
 
@@ -188,7 +201,7 @@ function PostureRecognition (props) {
             })
 
             console.log('isActive deep', isActive, video.srcObject)
-            
+
             if (video.srcObject.active)
                 setTimeout(() => {
                     const requestId = requestAnimationFrame(poseDetectionFrame)
@@ -239,14 +252,16 @@ function PostureRecognition (props) {
         <div>
             <div id="info" style={{ display: 'none' }}>
             </div>
-            <div id="loading" style={{ display: 'flex' }}>
+            {/* <div id="loading" style={{ display: 'flex' }}>
                 <div className="spinner-text">
                     Loading PoseNet model...
                 </div>
                 <div className="sk-spinner sk-spinner-pulse"></div>
-            </div>
-            <button onClick={play}>Play</button>
-            <button onClick={stop}>Stop</button>
+            </div> */}
+            {!props.hideButtons &&
+                (<button onClick={play}>Play</button> &&
+                    <button onClick={stop}>Stop</button>)
+            }
             {isActive &&
                 <div id='main' style={{ display: 'none' }}>
                     <video id="video" playsInline style={{ display: 'none' }}>
@@ -256,6 +271,6 @@ function PostureRecognition (props) {
             }
         </div>
     )
-}
+})
 
 export default PostureRecognition

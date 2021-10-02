@@ -8,15 +8,14 @@ import PostureGif from '../assets/posture.gif'
 class Home extends React.Component {
     render () {
         return <div className="home">
+            <h1>Strong Posture</h1>
             <img src={PostureGif} alt="" />
-            <Card className="home-description" elevation={1}>
+            <div className="home-description">
                 <p>Hi!</p>
                 <br />
                 <p> This app is created for help you with keeping posture correctly. </p>
-                <br />
                 <p> Timer will help you to focus on your work. Notifications will remind you about posture position. </p>
-            </Card>
-
+            </div>
             <Link to="/permissions" className="no-underline"> <Button className="main-big-button">Get started</Button></Link>
         </div>;
     }
