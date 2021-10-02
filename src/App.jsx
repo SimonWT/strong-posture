@@ -10,6 +10,7 @@ import Home from './components/Home'
 import Action from './components/Action'
 import Permissions from './components/Permissions'
 import Header from './components/Header'
+import PostureRecognition from './components/PostureRecognition/PostureRecognition'
 
 
 function App () {
@@ -46,6 +47,9 @@ function App () {
               setPermissions={setPermissions}
               permissions={permissions}
             />
+          </Route>
+          <Route path="/test">
+            <PostureRecognition />
           </Route>
           <Route path="/">
             <Home />
