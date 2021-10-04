@@ -2,6 +2,7 @@ import React, { useEffect, useState, forwardRef, useImperativeHandle } from "rea
 
 import { loadVideo } from './index'
 import { drawSkeleton, drawKeypoints, drawBoundingBox, isMobile } from './util'
+import { determineIsPostureCorrect } from './decision'
 import * as posenet from '@tensorflow-models/posenet'
 
 
@@ -13,7 +14,7 @@ const PostureRecognition = forwardRef((props, ref) => {
 
     function pushRequestId (id) {
         setRequestAnimationFrameIds([...requestAnimationFrameIds, id])
-        console.log(requestAnimationFrameIds)
+        // console.log(requestAnimationFrameIds)
     }
 
     const videoWidth = 600
@@ -99,8 +100,6 @@ const PostureRecognition = forwardRef((props, ref) => {
         canvas.width = videoWidth
         canvas.height = videoHeight
 
-        let xuyna
-
         const poseDetectionFrame = async () => {
 
             // Begin monitoring code for frames per second
@@ -147,7 +146,6 @@ const PostureRecognition = forwardRef((props, ref) => {
             // and draw the resulting skeleton and keypoints if over certain confidence
             // scores
             poses.forEach(({ score, keypoints }) => {
-                // console.log('shoulders', keypoints[0].position, keypoints[1].position)
                 if (score >= minPoseConfidence) {
                     if (guiState.output.showPoints) {
                         drawKeypoints(keypoints, minPartConfidence, ctx)
@@ -159,57 +157,26 @@ const PostureRecognition = forwardRef((props, ref) => {
                     if (guiState.output.showBoundingBox) {
                         drawBoundingBox(keypoints, ctx)
                     }
-
-                    const leftEye = keypoints.find((el) => el.part === 'leftEye').position
-                    const rightEye = keypoints.find((el) => el.part === 'rightEye').position
-                    const leftShoulder = keypoints.find(
-                        (el) => el.part === 'leftShoulder'
-                    ).position
-                    const rightShoulder = keypoints.find(
-                        (el) => el.part === 'rightShoulder'
-                    ).position
-
-                    const xEyes = rightEye.x - leftEye.x
-                    const xShoulders = rightShoulder.x - leftShoulder.x
-
-                    let alpha = 0.2
-
-
-                    if (!xuyna) {
-                        xuyna = 100000
-                        console.log('я дэбил')
+                    const key_points = {}
+                    for (const point of keypoints) {
+                        key_points[point.part] = point.position
                     }
+                    const isPostureCorrect = determineIsPostureCorrect(key_points)
+                    if(props.emitIsPostureCorrect)
+                        props.emitIsPostureCorrect(isPostureCorrect)
+                    // if (isPostureCorrect) console.log('хороший мальчик')
+                    // else console.log('тварь выпрямись')
 
-                    if (xShoulders < xuyna) {
-                        xuyna = xShoulders
-                    }
-
-                    // else {
-                    if (xuyna * (1 + alpha) < xShoulders) {
-                        console.log('тварь выпрямись', xuyna, xShoulders)
-                        props.emitIsPostureCorrect(false)
-                    } else {
-                        console.log('хороший мальчик', xuyna, xShoulders)
-                        props.emitIsPostureCorrect(true)
-                    }
-                    // }
-
-                    // const ratio = xEyes / xShoulders
-
-                    // console.log(ratio, xEyes, xShoulders)
                 }
             })
 
-            console.log('isActive deep', isActive, video.srcObject)
-
+            // console.log('isActive deep', isActive, video.srcObject)
+            const timeout = props.tickTimeOut ?? 0 
             if (video.srcObject.active)
                 setTimeout(() => {
                     const requestId = requestAnimationFrame(poseDetectionFrame)
                     pushRequestId(requestId)
-                }, 1000)
-
-
-            // requestAnimationFrame(poseDetectionFrame)
+                }, timeout)
         }
 
         poseDetectionFrame()
@@ -244,7 +211,6 @@ const PostureRecognition = forwardRef((props, ref) => {
 
         // setupGui([], net)
         // setupFPS()
-        console.log('isActive', isActive)
         detectPoseInRealTime(video, net)
     }
 
@@ -259,11 +225,11 @@ const PostureRecognition = forwardRef((props, ref) => {
                 <div className="sk-spinner sk-spinner-pulse"></div>
             </div> */}
             {!props.hideButtons &&
-                (<button onClick={play}>Play</button> &&
-                    <button onClick={stop}>Stop</button>)
+                <div><button onClick={play}>Play</button>
+                    <button onClick={stop}>Stop</button></div>
             }
             {isActive &&
-                <div id='main' style={{ display: 'none' }}>
+                <div id='main' style={{ display: props.showVideo ? 'block':  'none' }}>
                     <video id="video" playsInline style={{ display: 'none' }}>
                     </video>
                     <canvas id="output" />

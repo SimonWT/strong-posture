@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Timer from './Timer'
@@ -8,6 +8,8 @@ import GameView from './Game/GameView'
 import PostureRecognition from "./PostureRecognition/PostureRecognition";
 
 import useAudio from '../utils/useAudio'
+import useNotifications from '../utils/useNotifications'
+
 import { getSeconsFromTime } from '../utils/helpers'
 
 import completedTask from '../assets/svg/completedTask.svg'
@@ -22,17 +24,20 @@ const TIMER_DONE = 'TIMER_DONE'
 
 
 function Action (props) {
-    const [totalSeconds, setTotalSeconds] = React.useState(15 * 60);
-    const [userTimerInput, setUserTimerInput] = React.useState(getSavedTimer())
-    const [seconds, setSeconds] = React.useState(totalSeconds);
-    const [timerId, setTimerId] = React.useState(null);
-    const [timerState, setTimerState] = React.useState(TIMER_NULL);
+    const [totalSeconds, setTotalSeconds] = useState(15 * 60);
+    const [userTimerInput, setUserTimerInput] = useState(getSavedTimer())
+    const [seconds, setSeconds] = useState(totalSeconds);
+    const [timerId, setTimerId] = useState(null);
+    const [timerState, setTimerState] = useState(TIMER_NULL);
+    const [isPostureCorrect, setIsPostureCorrect] = useState(true)
+    const [recogntitionTicks, setRecogntitionTicks] = useState(0)
 
     const badImgsRef = React.createRef();
     const gameRef = useRef();
     const recognitionRef = useRef()
 
     const [toggleAudio] = useAudio(props.setAudioContext)
+    const [notify, remindByNotification] = useNotifications()
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
@@ -43,14 +48,16 @@ function Action (props) {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
             if (seconds > 0) {
-                if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
-                    notify('Just remind you', 'Keep your posture correctly bruh')
-                }
-                if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
-                    toggleBadImages()
-                }
-                if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
-                    toggleAudio(props.audioContext)
+                if(!props.permissions.video) {
+                    if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
+                        remindByNotification()
+                    }
+                    if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
+                        toggleBadImages()
+                    }
+                    if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
+                        toggleAudio(props.audioContext)
+                    }
                 }
             } else {
                 setTimerState(TIMER_DONE)
@@ -58,6 +65,17 @@ function Action (props) {
             }
         }
     }, [seconds])
+
+    useEffect(() => {
+        if(!isPostureCorrect) {
+            if(props.permissions.sound)
+                toggleAudio(props.audioContext)
+            if(props.permissions.notifications){
+                console.log('im here')
+                remindByNotification()
+            }
+        }
+    }, [recogntitionTicks])
 
     function playAgain () {
         setSeconds(totalSeconds);
@@ -102,27 +120,6 @@ function Action (props) {
         play()
     }
 
-    function notify (text, body) {
-        if (!("Notification" in window)) {
-            alert("This browser does not support desktop notification");
-        }
-
-        // Проверка разрешения на отправку уведомлений
-        else if (Notification.permission === "granted") {
-            // Если разрешено, то создаём уведомление
-            var notification = new Notification(text, { body });
-        }
-        // В противном случае, запрашиваем разрешение
-        else if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function (permission) {
-                // Если пользователь разрешил, то создаём уведомление
-                if (permission === "granted") {
-                    var notification = new Notification(text, { body });
-                }
-            });
-        }
-    }
-
 
     function toggleBadImages () {
         badImgsRef.current.toggle()
@@ -135,16 +132,22 @@ function Action (props) {
         localStorage.setItem('user-timer-input', value)
     }
 
+    function increaseTicks(){
+        setRecogntitionTicks(ticks => ticks + 1)
+    }
+
     function emitIsPostureCorrect (payload) {
         gameRef.current.somethingonposuture(payload)
+        setIsPostureCorrect(payload)
+        increaseTicks()
     }
 
     return (
         <div className="action">
             {(props.permissions.video) ?
                 (
-                    <div><GameView ref={gameRef} />
-                    <PostureRecognition ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
+                    <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} / >}
+                    <PostureRecognition tickTimeOut={1000} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
                 )
                 :
                 (props.permissions.images && timerState === TIMER_ACTIVE &&

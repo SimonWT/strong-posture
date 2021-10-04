@@ -56,7 +56,7 @@ function App () {
             />
           </Route>
           <Route path="/test">
-            <PostureRecognition />
+            <PostureRecognition showVideo={true} />
           </Route>
           <Route path="/">
             <Home />

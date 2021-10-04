@@ -1,17 +1,22 @@
-import React, { useEffect, forwardRef, useImperativeHandle  } from "react";
+import React, { useEffect, forwardRef, useImperativeHandle, useState } from "react";
 
-const GameView = forwardRef((props, ref) => {   
+const GameView = forwardRef((props, ref) => {
+
+    const [isPostureCorrect, setIsPostureCorrect] = useState(true)
 
     useImperativeHandle(ref, () => ({
 
-        somethingonposuture(payload){
+        somethingonposuture (payload) {
             console.log('GAME', payload)
+            setIsPostureCorrect(payload)
         }
-    
-      }));
+
+    }));
 
     return (
-        <div> SOME GAMEFICATION</div>
+        <div>
+            Is you posture correct? - {  isPostureCorrect ? 'YES' : 'NO' }
+        </div>
     )
 })
 
