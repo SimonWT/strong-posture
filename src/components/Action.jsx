@@ -36,7 +36,7 @@ function Action (props) {
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio] = useAudio(props.setAudioContext)
+    const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
     const [notify, remindByNotification] = useNotifications()
 
     function getSavedTimer () {
@@ -72,7 +72,7 @@ function Action (props) {
     useEffect(() => {
         if(!isPostureCorrect) {
             if(props.permissions.sound)
-                toggleAudio(props.audioContext)
+                playHurtSound(props.audioContext)
             if(props.permissions.notifications){
                 console.log('im here')
                 remindByNotification()
@@ -98,6 +98,8 @@ function Action (props) {
 
         if(props.permissions.video)
         recognitionRef.current.play()
+        if(props.permissions.sound)
+            warmupAudio(props.setAudioContext)
     }
 
     function stop () {
