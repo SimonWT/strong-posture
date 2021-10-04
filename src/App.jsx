@@ -15,8 +15,10 @@ import PostureRecognition from './components/PostureRecognition/PostureRecogniti
 
 function App () {
 
+  const isBrowserSupportNotifications = ("Notification" in window) ? true : false
+  
   const [permissions, setPermissions] = useState({
-    notifications: false,
+    notifications: isBrowserSupportNotifications ? Notification.permission : false,
     sound: false,
     video: false,
     images: false

@@ -5,7 +5,7 @@ import useAudio from '../utils/useAudio'
 
 function NotificationsSettings (props) {
     const isBrowserSupportNotifications = ("Notification" in window) ? true : false
-    const [notifcationPermission, setNotifcationPermission] = React.useState(isBrowserSupportNotifications ? Notification.permission : false);
+    const [notifcationPermission, setNotifcationPermission] = React.useState(props.permissions.notifications);
     const [soundPermission, setSoundPermission] = React.useState(props.permissions.sound);
     const [videoPermission, setVideoPermission] = React.useState(props.permissions.video);
     const [imagesPermission, setImagesPermission] = React.useState(props.permissions.images);

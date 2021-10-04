@@ -60,7 +60,10 @@ function Action (props) {
                     }
                 }
             } else {
+                clearInterval(timerId)
                 setTimerState(TIMER_DONE)
+                if(props.permissions.video)
+                    recognitionRef.current.stop()
                 notify('You are awesome!!!', 'Nice posture, bro 👊')
             }
         }
@@ -160,7 +163,7 @@ function Action (props) {
                 </div>
             }
             {timerState === TIMER_ACTIVE && seconds > 0 &&
-                <h1 className="action-title"> Keep you posture correctly! </h1>
+                <h1 className="action-title"> Keep your posture correctly! </h1>
             }
 
             {timerState === TIMER_NULL ?
