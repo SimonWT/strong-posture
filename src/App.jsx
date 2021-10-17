@@ -25,7 +25,7 @@ function App () {
   })
 
   const [timeIntervals, setTimeIntervals] = useState({
-    notifications: 300,
+    notifications: 60,
     sound: 100,
     video: 200,
     images: 20
