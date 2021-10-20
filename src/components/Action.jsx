@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
+import * as workerTimers from 'worker-timers';
+
 import Timer from './Timer'
 import ConsequencesImages from './ConsequencesImages'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
@@ -60,7 +62,7 @@ function Action (props) {
                     }
                 }
             } else {
-                clearInterval(timerId)
+                workerTimers.clearInterval(timerId)
                 setTimerState(TIMER_DONE)
                 if(props.permissions.video)
                     recognitionRef.current.stop()
@@ -92,7 +94,7 @@ function Action (props) {
     }
 
     function play () {
-        const intervalId = setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
+        const intervalId = workerTimers.setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
         setTimerId(intervalId)
         setTimerState(TIMER_ACTIVE)
 
@@ -105,7 +107,7 @@ function Action (props) {
     function stop () {
         console.log('stopped')
         setTimerState(TIMER_NULL)
-        clearInterval(timerId)
+        workerTimers.clearInterval(timerId)
         setSeconds(totalSeconds)
 
         if(props.permissions.video)
@@ -115,7 +117,7 @@ function Action (props) {
     function pause () {
         console.log('paused')
         setTimerState(TIMER_PAUSED)
-        clearInterval(timerId)
+        workerTimers.clearInterval(timerId)
 
         if(props.permissions.video)
         recognitionRef.current.stop()
