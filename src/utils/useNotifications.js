@@ -11,7 +11,7 @@ const reminderVariants = [
 
 const registerServiceWorker = async () => {
   const swRegistration = await navigator.serviceWorker.register(
-    'serviceWorker.js'
+    'serviceWorker.js', { scope: '../../public/' }
   ) //notice the file name
   return swRegistration
 }

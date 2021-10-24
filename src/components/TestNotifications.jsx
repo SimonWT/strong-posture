@@ -15,7 +15,7 @@ const Notifications = (props) => {
     const [trigger, setTrigger] = useState(true)
     const [options, setOptions] = useState({})
 
-    const [notify, remindByNotification, requestPermission, getPermission, notifySw] = useNotifications(false)
+    const [notify, remindByNotification, requestPermission, getPermission, notifySw] = useNotifications(true)
 
 
     //   useEffect(() => {
