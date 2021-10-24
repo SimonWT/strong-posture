@@ -39,7 +39,7 @@ function Action (props) {
     const recognitionRef = useRef()
 
     const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
-    const [notify, remindByNotification] = useNotifications()
+    const [notify, remindByNotification] = useNotifications(true)
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"

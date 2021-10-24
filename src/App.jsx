@@ -11,9 +11,10 @@ import Action from './components/Action'
 import Permissions from './components/Permissions'
 import Header from './components/Header'
 import PostureRecognition from './components/PostureRecognition/PostureRecognition'
+import TestNotifications from './components/TestNotifications'
 
 
-function App () {
+function App (props) {
 
   const isBrowserSupportNotifications = ("Notification" in window) ? true : false
   
@@ -59,6 +60,9 @@ function App () {
           </Route>
           <Route path="/test">
             <PostureRecognition showVideo={true} />
+          </Route>
+          <Route path="/testNotifications">
+            <TestNotifications />
           </Route>
           <Route path="/">
             <Home />

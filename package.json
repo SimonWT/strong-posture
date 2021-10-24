@@ -19,6 +19,7 @@
     "react-dom": "^17.0.0",
     "react-redux": "^7.2.5",
     "react-router-dom": "^5.3.0",
+    "react-web-notification": "^0.8.0",
     "redux": "^4.1.1",
     "stats.js": "^0.17.0",
     "ui-neumorphism": "^1.1.3",
