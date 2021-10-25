@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import * as workerTimers from 'worker-timers';
 
@@ -33,6 +33,7 @@ function Action (props) {
     const [timerState, setTimerState] = useState(TIMER_NULL);
     const [isPostureCorrect, setIsPostureCorrect] = useState(true)
     const [recogntitionTicks, setRecogntitionTicks] = useState(0)
+    const [isUserTimerInputChaged, setUserTimerInputChaged] = useState(false)
 
     const badImgsRef = React.createRef();
     const gameRef = useRef();
@@ -40,6 +41,8 @@ function Action (props) {
 
     const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
     const [notify, remindByNotification] = useNotifications(true)
+
+    const location = useLocation()
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
@@ -50,7 +53,7 @@ function Action (props) {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
             if (seconds > 0) {
-                if(!props.permissions.video) {
+                if (!props.permissions.video) {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                         remindByNotification()
                     }
@@ -64,7 +67,7 @@ function Action (props) {
             } else {
                 workerTimers.clearInterval(timerId)
                 setTimerState(TIMER_DONE)
-                if(props.permissions.video)
+                if (props.permissions.video)
                     recognitionRef.current.stop()
                 notify('You are awesome!!!', 'Nice posture, bro 👊')
             }
@@ -72,15 +75,18 @@ function Action (props) {
     }, [seconds])
 
     useEffect(() => {
-        if(!isPostureCorrect) {
-            if(props.permissions.sound)
+        if (!isPostureCorrect) {
+            if (props.permissions.sound)
                 playHurtSound(props.audioContext)
-            if(props.permissions.notifications){
-                console.log('im here')
+            if (props.permissions.notifications) {
                 remindByNotification()
             }
         }
     }, [recogntitionTicks])
+
+    useEffect(() => {
+        if (location?.state?.startTimerOnEnter) start()
+    }, [location])
 
     function playAgain () {
         setSeconds(totalSeconds);
@@ -98,9 +104,9 @@ function Action (props) {
         setTimerId(intervalId)
         setTimerState(TIMER_ACTIVE)
 
-        if(props.permissions.video)
-        recognitionRef.current.play()
-        if(props.permissions.sound)
+        if (props.permissions.video)
+            recognitionRef.current.play()
+        if (props.permissions.sound)
             warmupAudio(props.setAudioContext)
     }
 
@@ -110,8 +116,8 @@ function Action (props) {
         workerTimers.clearInterval(timerId)
         setSeconds(totalSeconds)
 
-        if(props.permissions.video)
-        recognitionRef.current.stop()
+        if (props.permissions.video)
+            recognitionRef.current.stop()
     }
 
     function pause () {
@@ -119,8 +125,8 @@ function Action (props) {
         setTimerState(TIMER_PAUSED)
         workerTimers.clearInterval(timerId)
 
-        if(props.permissions.video)
-        recognitionRef.current.stop()
+        if (props.permissions.video)
+            recognitionRef.current.stop()
     }
 
     function resume () {
@@ -139,7 +145,23 @@ function Action (props) {
         localStorage.setItem('user-timer-input', value)
     }
 
-    function increaseTicks(){
+    function onTimeInputChange ($event) {
+        console.log($event)
+        setUserTimerInputChaged(true)
+        let value = $event.value
+        console.log('original value', value, typeof (value))
+        setUserTimerInput(value)
+        localStorage.setItem('user-timer-input', value)
+    }
+
+    function onSubmitTimerInput () {
+            setUserTimerInputChaged(false)
+            const seconds = getSeconsFromTime(userTimerInput)
+            setTotalSeconds(seconds)
+            setSeconds(seconds);
+    }
+
+    function increaseTicks () {
         setRecogntitionTicks(ticks => ticks + 1)
     }
 
@@ -153,8 +175,8 @@ function Action (props) {
         <div className="action">
             {(props.permissions.video) ?
                 (
-                    <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} / >}
-                    <PostureRecognition tickTimeOut={1000} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
+                    <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} />}
+                        <PostureRecognition tickTimeOut={1000} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
                 )
                 :
                 (props.permissions.images && timerState === TIMER_ACTIVE &&
@@ -171,16 +193,21 @@ function Action (props) {
             }
 
             {timerState === TIMER_NULL ?
-                <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput}></TextField>
+                <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
                 :
-                <Card inset style={{ padding: 20 + 'px', width: 260 + 'px' }}>
-                    <Timer seconds={seconds} totalSeconds={totalSeconds} />
+                <Card inset className="action-timer-card">
+                    <Timer seconds={seconds} totalSeconds={totalSeconds} >
+                        <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active': ''}`}>
+                            <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
+                            {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
+                        </div>
+                    </Timer>
                 </Card>
             }
 
             {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
-                    <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')}></ProgressLinear>
+                    <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')} />
                     {seconds > 0 &&
                         <div className="btns-group" >
                             <Button onClick={stop}>Stop</Button>

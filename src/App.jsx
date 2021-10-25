@@ -17,7 +17,7 @@ import TestNotifications from './components/TestNotifications'
 function App (props) {
 
   const isBrowserSupportNotifications = ("Notification" in window) ? true : false
-  
+
   const [permissions, setPermissions] = useState({
     notifications: isBrowserSupportNotifications ? Notification.permission : false,
     sound: false,
@@ -38,16 +38,16 @@ function App (props) {
   return (
     <Router>
       <div className="App">
-        <Header 
-          setPermissions={setPermissions}
-          permissions={permissions}
-          timeIntervals={timeIntervals}
-          setTimeIntervals={setTimeIntervals} 
-          setAudioContext={setAudioContext}
-        />
         <Switch>
           <Route path="/action">
-            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext}  videoStream={videoStream}/>
+            <Header
+              setPermissions={setPermissions}
+              permissions={permissions}
+              timeIntervals={timeIntervals}
+              setTimeIntervals={setTimeIntervals}
+              setAudioContext={setAudioContext}
+            />
+            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} />
           </Route>
           <Route path="/permissions">
             <Permissions

@@ -104,7 +104,7 @@ code {
 }
 
 .action-timer {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -118,6 +118,19 @@ code {
 .timer-progress {
   margin-top: 70px;
   width: 350px !important;
+  ._1wWaA {
+    background-color: rgba(56, 86, 130, 0.11);
+    ._29wbC {
+      --selector-bg: #5297FF !important;
+    }
+  }
+}
+
+.action-timer-card {
+  padding: 20px;
+  display: inline-flex;
+  justify-content: center;
+  min-width: 300px;
 }
 
 .congrats-head {
@@ -178,6 +191,31 @@ code {
       width: 200px;
     }
   }
+  &.small {
+    margin: 0;
+    ._U6nBC._2nHt_._26ECL {
+      border: none;
+      min-height: unset;
+      font-size: 20px;
+      padding: 0;
+    }
+    ._3t8tT {
+      display: none;
+    }
+    input[type="time"]::-webkit-calendar-picker-indicator {
+      background: none;
+      display: none;
+    }
+  }
+}
+
+.time-input-on-run {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 6px;
+  border: 1px solid #808b9f;
 }
 
 .notifications-settings {
@@ -209,5 +247,29 @@ code {
   @media only screen and (max-width: 400px) {
     text-align: center;
     margin-bottom: 30px;
+  }
+}
+
+
+.ask-video {
+  & img {
+    max-width: 200px;
+  }
+  .text1 {
+    margin-top: 40px;
+    max-width: 500px;
+    text-align: center;
+  }
+  .text2 {
+    margin-top: 60px;
+  }
+}
+
+.ok-btn._cL4RU._17_OS._37by5._CWiZp._39_ND._1crAB {
+  padding: 0;
+  min-width: 40px;
+  margin-left: 5px;
+  & button {
+    font-size: 12px;
   }
 }

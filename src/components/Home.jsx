@@ -11,7 +11,7 @@ class Home extends React.Component {
             <h1>Strong Posture</h1>
             <img src={PostureGif} alt="" />
             <div className="home-description">
-                <p> strong posture help you keep track of your posture while working on your computer. </p>
+                <p> Pomodoro sessions + Reminder features to help you maintain a correct posture while working</p>
             </div>
             <Link to="/permissions" className="no-underline"> <Button className="main-big-button">Get started</Button></Link>
         </div>;

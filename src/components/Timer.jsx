@@ -17,10 +17,10 @@ function Timer (props) {
     return (
         <div className="action-timer">
             <div className="timer">
-                { time }
+                {time}
             </div>
             <span className="slash">/</span>
-            <span className="total-time">{ totalTime }</span>
+            {props.children ?? <span className="total-time">{totalTime}</span>}
         </div>
     );
 }

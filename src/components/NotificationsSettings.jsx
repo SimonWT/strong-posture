@@ -41,8 +41,6 @@ function NotificationsSettings (props) {
         //     document.body.removeEventListener('touchstart', unlockAudio)
         // }
         
-        // document.body.addEventListener('click', unlockAudio);
-        // document.body.addEventListener('touchstart', unlockAudio);
     }
 
     function onVideoChange ({ checked }) {
