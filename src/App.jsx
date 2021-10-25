@@ -19,7 +19,7 @@ function App (props) {
   const isBrowserSupportNotifications = ("Notification" in window) ? true : false
 
   const [permissions, setPermissions] = useState({
-    notifications: isBrowserSupportNotifications ? Notification.permission : false,
+    notifications: isBrowserSupportNotifications ? Notification.permission === 'granted' : false,
     sound: false,
     video: false,
     images: false
@@ -47,7 +47,7 @@ function App (props) {
               setTimeIntervals={setTimeIntervals}
               setAudioContext={setAudioContext}
             />
-            <Action permissions={permissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} />
+            <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} />
           </Route>
           <Route path="/permissions">
             <Permissions

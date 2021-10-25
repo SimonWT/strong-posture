@@ -273,3 +273,19 @@ code {
     font-size: 12px;
   }
 }
+
+
+.ask-permissions-dialog {
+}
+
+.addressBarArrow {
+  position: absolute;
+  left: 100%;
+  bottom: 50%;
+  height: 40vh;
+  &.left {
+    transform: scaleX(-1);
+    left: unset;
+    right: 100%;
+  }
+}

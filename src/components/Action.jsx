@@ -8,6 +8,7 @@ import ConsequencesImages from './ConsequencesImages'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
 import GameView from './Game/GameView'
 import PostureRecognition from "./PostureRecognition/PostureRecognition";
+import AskPermissions from './AskPermissions'
 
 import useAudio from '../utils/useAudio'
 import useNotifications from '../utils/useNotifications'
@@ -235,6 +236,7 @@ function Action (props) {
                     <Button onClick={playAgain}>Again</Button>
                 </div>
             }
+            <AskPermissions setAudioContext={props.setAudioContext} permissions={props.permissions} setPermissions={props.setPermissions} />
         </div>
     )
 }
