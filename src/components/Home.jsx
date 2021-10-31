@@ -2,7 +2,7 @@ import React from 'react'
 import {
     Link
 } from "react-router-dom";
-import { Button, Card } from 'ui-neumorphism'
+import { Button } from 'ui-neumorphism'
 import PostureGif from '../assets/posture.gif'
 
 class Home extends React.Component {
@@ -11,7 +11,9 @@ class Home extends React.Component {
             <h1>Strong Posture</h1>
             <img src={PostureGif} alt="" />
             <div className="home-description">
-                <p> Pomodoro sessions + Reminder features to help you maintain a correct posture while working</p>
+                <span>Pomodoro sessions</span>
+                <span>+</span>
+                <span>Reminders to keep posture correct</span>
             </div>
             <Link to="/permissions" className="no-underline"> <Button className="main-big-button">Get started</Button></Link>
         </div>;

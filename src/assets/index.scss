@@ -121,7 +121,7 @@ code {
   ._1wWaA {
     background-color: rgba(56, 86, 130, 0.11);
     ._29wbC {
-      --selector-bg: #5297FF !important;
+      --selector-bg: #5297ff !important;
     }
   }
 }
@@ -202,7 +202,7 @@ code {
     ._3t8tT {
       display: none;
     }
-    input[type="time"]::-webkit-calendar-picker-indicator {
+    input[type='time']::-webkit-calendar-picker-indicator {
       background: none;
       display: none;
     }
@@ -237,9 +237,23 @@ code {
 .home-description {
   margin-bottom: 30px;
   padding: 20px;
-  max-width: 350px;
+  // max-width: 450px;
   font-size: 18px;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & span {
+    &:nth-child(2) {
+      margin: 0 20px;
+    }
+    &:nth-child(1) {
+      text-align: right;
+    }
+    &:nth-child(3) {
+      // text-align: left;
+    }
+  }
 }
 
 .action-title {
@@ -249,7 +263,6 @@ code {
     margin-bottom: 30px;
   }
 }
-
 
 .ask-video {
   & img {
@@ -273,7 +286,6 @@ code {
     font-size: 12px;
   }
 }
-
 
 .ask-permissions-dialog {
 }
