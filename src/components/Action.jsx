@@ -15,6 +15,8 @@ import useNotifications from '../utils/useNotifications'
 
 import { getSeconsFromTime } from '../utils/helpers'
 
+import { sendAmplitudeData } from '../utils/amplitude'
+
 import completedTask from '../assets/svg/completedTask.svg'
 import playIcon from '../assets/svg/play.svg'
 import pauseIcon from '../assets/svg/pause.svg'
@@ -71,6 +73,7 @@ function Action (props) {
                 if (props.permissions.video)
                     recognitionRef.current.stop()
                 notify('You are awesome!!!', 'Nice posture, bro 👊')
+                sendAmplitudeData('session-ended')
             }
         }
     }, [seconds])
@@ -98,6 +101,8 @@ function Action (props) {
         setTotalSeconds(seconds)
         setSeconds(seconds);
         play()
+
+        sendAmplitudeData('timer-start')
     }
 
     function play () {
@@ -119,6 +124,8 @@ function Action (props) {
 
         if (props.permissions.video)
             recognitionRef.current.stop()
+
+        sendAmplitudeData('timer-stop')
     }
 
     function pause () {
@@ -128,10 +135,13 @@ function Action (props) {
 
         if (props.permissions.video)
             recognitionRef.current.stop()
+
+        sendAmplitudeData('timer-pause')
     }
 
     function resume () {
         play()
+        sendAmplitudeData('timer-resume')
     }
 
 
@@ -156,10 +166,11 @@ function Action (props) {
     }
 
     function onSubmitTimerInput () {
-            setUserTimerInputChaged(false)
-            const seconds = getSeconsFromTime(userTimerInput)
-            setTotalSeconds(seconds)
-            setSeconds(seconds);
+        setUserTimerInputChaged(false)
+        const seconds = getSeconsFromTime(userTimerInput)
+        setTotalSeconds(seconds)
+        setSeconds(seconds);
+        sendAmplitudeData('session-period-changed', { seconds })
     }
 
     function increaseTicks () {

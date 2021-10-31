@@ -4,6 +4,9 @@ import './assets/index.scss'
 import 'ui-neumorphism/dist/index.css'
 import App from './App'
 
+import { initAmplitude } from './utils/amplitude'
+
+initAmplitude()
 
 ReactDOM.render(
   <React.StrictMode>
