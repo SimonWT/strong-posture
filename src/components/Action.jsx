@@ -125,7 +125,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-stop')
+        sendAmplitudeData('timer-stop', seconds)
     }
 
     function pause () {
@@ -136,7 +136,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-pause')
+        sendAmplitudeData('timer-pause', seconds)
     }
 
     function resume () {
@@ -154,6 +154,7 @@ function Action (props) {
         console.log('original value', value, typeof (value))
         setUserTimerInput(value)
         localStorage.setItem('user-timer-input', value)
+        sendAmplitudeData('timer-duration-changed', getSeconsFromTime(value))
     }
 
     function onTimeInputChange ($event) {
@@ -170,7 +171,8 @@ function Action (props) {
         const seconds = getSeconsFromTime(userTimerInput)
         setTotalSeconds(seconds)
         setSeconds(seconds);
-        sendAmplitudeData('session-period-changed', { seconds })
+
+        sendAmplitudeData('timer-duration-changed-on-run', seconds)
     }
 
     function increaseTicks () {
@@ -181,6 +183,8 @@ function Action (props) {
         gameRef.current.somethingonposuture(payload)
         setIsPostureCorrect(payload)
         increaseTicks()
+
+        sendAmplitudeData('recognition-result', payload)
     }
 
     return (
