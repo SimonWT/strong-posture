@@ -232,7 +232,7 @@ const PostureRecognition = forwardRef((props, ref) => {
                 <div id='main' style={{ display: props.showVideo ? 'block':  'none' }}>
                     <video id="video" playsInline style={{ display: 'none' }}>
                     </video>
-                    <canvas id="output" />
+                    <canvas id="output" style={{ width: props.canvasWidth }} />
                 </div>
             }
         </div>

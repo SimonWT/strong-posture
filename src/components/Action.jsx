@@ -192,7 +192,7 @@ function Action (props) {
             {(props.permissions.video) ?
                 (
                     <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} />}
-                        <PostureRecognition tickTimeOut={1000} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
+                        <PostureRecognition tickTimeOut={1} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} showVideo canvasWidth="300px" /></div>
                 )
                 :
                 (props.permissions.images && timerState === TIMER_ACTIVE &&
