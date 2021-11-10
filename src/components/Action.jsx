@@ -212,7 +212,7 @@ function Action (props) {
                 <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
                 :
                 <Card inset className="action-timer-card">
-                    <Timer seconds={seconds} totalSeconds={totalSeconds} >
+                    <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
                         <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active': ''}`}>
                             <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
                             {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}

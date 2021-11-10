@@ -13,6 +13,8 @@ import Header from './components/Header'
 import PostureRecognition from './components/PostureRecognition/PostureRecognition'
 import TestNotifications from './components/TestNotifications'
 
+import useSettings from './utils/useSettings'
+
 
 function App (props) {
 
@@ -32,11 +34,20 @@ function App (props) {
     images: 20
   })
 
+  const [settings, setSettings] = useState({
+    useStopwatchInsteadOfTimer: false
+  })
+
+  const [isLoading, setLoading] = useState(false)
+
   const [audioContext, setAudioContext] = useState(undefined)
   const [videoStream, setVideoStream] = useState(undefined)
 
+  useSettings(settings, setSettings, setLoading)
+
   return (
     <Router>
+      { isLoading && <h1 className="loader"> Loading... </h1> }
       <div className="App">
         <Switch>
           <Route path="/action">
@@ -47,7 +58,7 @@ function App (props) {
               setTimeIntervals={setTimeIntervals}
               setAudioContext={setAudioContext}
             />
-            <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} />
+            <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} settings={settings} />
           </Route>
           <Route path="/permissions">
             <Permissions
@@ -68,7 +79,6 @@ function App (props) {
             <Home />
           </Route>
         </Switch>
-
       </div>
     </Router>
   )
