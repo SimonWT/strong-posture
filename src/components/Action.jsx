@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import * as workerTimers from 'worker-timers';
 
 import Timer from './Timer'
+import Stopwatch from './Stopwatch'
 import ConsequencesImages from './ConsequencesImages'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
 import GameView from './Game/GameView'
@@ -29,7 +30,9 @@ const TIMER_DONE = 'TIMER_DONE'
 
 
 function Action (props) {
-    const [totalSeconds, setTotalSeconds] = useState(15 * 60);
+    const initTotalTime = !props.settings.useStopwatchInsteadOfTimer ? 15 * 60 : 0
+
+    const [totalSeconds, setTotalSeconds] = useState(initTotalTime);
     const [userTimerInput, setUserTimerInput] = useState(getSavedTimer())
     const [seconds, setSeconds] = useState(totalSeconds);
     const [timerId, setTimerId] = useState(null);
@@ -49,13 +52,22 @@ function Action (props) {
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
-        return lsValue ?? "15:00"
+        return (lsValue ?? "15:00")
+    }
+
+    function finishSession () {
+        workerTimers.clearInterval(timerId)
+        setTimerState(TIMER_DONE)
+        if (props.permissions.video)
+            recognitionRef.current.stop()
+        notify('You are awesome!!!', 'Nice posture, bro 👊')
+        sendAmplitudeData('session-ended')
     }
 
     useEffect(() => {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
-            if (seconds > 0) {
+            if (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) {
                 if (!props.permissions.video) {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                         remindByNotification()
@@ -68,12 +80,7 @@ function Action (props) {
                     }
                 }
             } else {
-                workerTimers.clearInterval(timerId)
-                setTimerState(TIMER_DONE)
-                if (props.permissions.video)
-                    recognitionRef.current.stop()
-                notify('You are awesome!!!', 'Nice posture, bro 👊')
-                sendAmplitudeData('session-ended')
+                finishSession()
             }
         }
     }, [seconds])
@@ -97,7 +104,7 @@ function Action (props) {
     }
 
     function start () {
-        const seconds = getSeconsFromTime(userTimerInput)
+        const seconds = !props.settings.useStopwatchInsteadOfTimer ? getSeconsFromTime(userTimerInput) : initTotalTime
         setTotalSeconds(seconds)
         setSeconds(seconds);
         play()
@@ -106,7 +113,8 @@ function Action (props) {
     }
 
     function play () {
-        const intervalId = workerTimers.setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
+        const secondsManipulation = !props.settings.useStopwatchInsteadOfTimer ? ((seconds) => seconds - 1) : ((seconds) => seconds + 1)
+        let intervalId = workerTimers.setInterval(() => (setSeconds(secondsManipulation)), 1000)
         setTimerId(intervalId)
         setTimerState(TIMER_ACTIVE)
 
@@ -120,7 +128,12 @@ function Action (props) {
         console.log('stopped')
         setTimerState(TIMER_NULL)
         workerTimers.clearInterval(timerId)
-        setSeconds(totalSeconds)
+
+        if (props.settings.useStopwatchInsteadOfTimer) {
+            finishSession()
+        } else {
+            setSeconds(totalSeconds)
+        }
 
         if (props.permissions.video)
             recognitionRef.current.stop()
@@ -198,32 +211,51 @@ function Action (props) {
                 (props.permissions.images && timerState === TIMER_ACTIVE &&
                     <ConsequencesImages ref={badImgsRef} />)
             }
-            {seconds <= 0 &&
+            {timerState === TIMER_DONE &&
                 <div className="congrats-head">
                     <img src={completedTask} alt="Congrats" />
                     <h1>Congrats!</h1>
+                    {/* <h2>{ seconds }</h2> */}
                 </div>
             }
-            {timerState === TIMER_ACTIVE && seconds > 0 &&
+            {timerState === TIMER_ACTIVE && (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) &&
                 <h1 className="action-title"> Keep your posture correctly! </h1>
             }
 
-            {timerState === TIMER_NULL ?
-                <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
-                :
-                <Card inset className="action-timer-card">
-                    <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
-                        <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active': ''}`}>
-                            <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
-                            {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
-                        </div>
-                    </Timer>
-                </Card>
+            {
+                !props.settings.useStopwatchInsteadOfTimer ?
+                    <>
+                        {timerState === TIMER_NULL ?
+                            <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
+                            :
+                            <Card inset className="action-timer-card">
+                                <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
+                                    <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active' : ''}`}>
+                                        <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
+                                        {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
+                                    </div>
+                                </Timer>
+                            </Card>
+                        }
+                    </>
+                    :
+                    <>
+                        {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) ?
+                            <Stopwatch seconds={seconds} active={timerState === TIMER_ACTIVE} />
+                            :
+                            <>
+                                <p style={{fontSize: '20px'}}> You kept posture correct for</p>
+                                <span><h2 className="timer">{seconds}</h2>seconds</span>
+                            </>
+                        }
+                    </>
             }
 
             {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
-                    <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')} />
+                    {!props.settings.useStopwatchInsteadOfTimer &&
+                        <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')} />
+                    }
                     {seconds > 0 &&
                         <div className="btns-group" >
                             <Button onClick={stop}>Stop</Button>

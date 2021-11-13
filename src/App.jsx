@@ -38,7 +38,7 @@ function App (props) {
     useStopwatchInsteadOfTimer: false
   })
 
-  const [isLoading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(true)
 
   const [audioContext, setAudioContext] = useState(undefined)
   const [videoStream, setVideoStream] = useState(undefined)
@@ -47,7 +47,7 @@ function App (props) {
 
   return (
     <Router>
-      { isLoading && <h1 className="loader"> Loading... </h1> }
+      {isLoading && <div className="loader-container"><div className="sk-spinner-pulse"></div></div>}
       <div className="App">
         <Switch>
           <Route path="/action">
@@ -58,7 +58,9 @@ function App (props) {
               setTimeIntervals={setTimeIntervals}
               setAudioContext={setAudioContext}
             />
-            <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} settings={settings} />
+            {!isLoading &&
+              <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} settings={settings} />
+            }
           </Route>
           <Route path="/permissions">
             <Permissions
