@@ -27,15 +27,16 @@ const useAudio = (props) => {
   }
 
   const warmup = async (setContext) => {
-    const context = initAudioContext()
-    setContext(context)
-    const random = getRandomInt(urls.length - 1)
-    const audioBuffer = await getAudioBuffer(urls[random], context)
-    var source = context.createBufferSource()
-    source.buffer = audioBuffer
-    source.connect(context.destination)
-    source.start()
-    source.stop()
+    // const context = initAudioContext()
+    // setContext(context)
+    // const random = getRandomInt(urls.length - 1)
+    // const audioBuffer = await getAudioBuffer(urls[random], context)
+    // var source = context.createBufferSource()
+    // source.buffer = audioBuffer
+    // source.connect(context.destination)
+    // source.start()
+    // source.stop()
+    document.getElementById('audio').load();
   }
 
   const getAudioBuffer = async (URL, context) => {
@@ -71,15 +72,20 @@ const useAudio = (props) => {
   }
 
   const toggle = async (audioContext) => {
-    console.log('toggle')
-    const random = getRandomInt(urls.length - 1)
-    const audioStuff = await getAudioBuffer(urls[random], audioContext)
-    play(audioStuff, audioContext)
+    // console.log('toggle')
+    // const random = getRandomInt(urls.length - 1)
+    // const audioStuff = await getAudioBuffer(urls[random], audioContext)
+    // play(audioStuff, audioContext)
+
+    document.getElementById('audio').play();
   }
 
+  //TODO: refector
   const playHurtSound = async (audioContext) => {
-    const audioStuff = await getAudioBuffer(urls[0], audioContext)
-    play(audioStuff, audioContext)
+    
+    // const audioStuff = await getAudioBuffer(urls[0], audioContext)
+    // play(audioStuff, audioContext)
+    document.getElementById('audio').play();
   }
 
   
