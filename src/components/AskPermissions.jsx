@@ -3,6 +3,7 @@ import { Dialog, Switch } from 'ui-neumorphism'
 
 import useNotifications from '../utils/useNotifications'
 import useAudio from '../utils/useAudio'
+import { isSafari } from '../utils/helpers'
 
 function AskPermissions (props) {
     const [isModalVisible, setModalVisibility] = useState(false)
@@ -23,8 +24,11 @@ function AskPermissions (props) {
         warmupAudio(props.setAudioContext)
         setPushEnabled(false)
         setSwitchKey((value) => value += 1)
+        console.log('permission 0', getPermission())
         const requestedPermission = await requestPermission()
+        console.log('requestedPermission', requestedPermission)
         const permission = requestedPermission ?? getPermission()
+        console.log('permission', permission)
         setPushEnabled(permission === 'granted')
         setSwitchKey((value) => value += 1)
         if (permission === 'granted') {
@@ -37,7 +41,7 @@ function AskPermissions (props) {
         <Dialog visible={isModalVisible} className="ask-permission-dialog">
             <div>
                 <Switch onChange={onPushNotificationsChange} key={switchKey} value={pushEnabled} checked={pushEnabled} color='var(--success)' label='Enable Push Notifications' />
-                {switchKey > 0 && <>
+                {switchKey > 0 && !isSafari && <>
                     <img src="/addressBarArrow.png" className="addressBarArrow" />
                     <img src="/addressBarArrow.png" className="addressBarArrow left" /> </>
                 }

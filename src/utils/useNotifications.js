@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getRandomInt } from './helpers'
+import { getRandomInt, isSafari } from './helpers'
 
 const reminderVariants = [
   { text: 'Just remind you', body: 'Keep your posture correctly bruh' },
@@ -11,7 +11,8 @@ const reminderVariants = [
 
 const registerServiceWorker = async () => {
   const swRegistration = await navigator.serviceWorker.register(
-    'serviceWorker.js', { scope: '../../public/' }
+    'serviceWorker.js',
+    { scope: '../../public/' }
   ) //notice the file name
   return swRegistration
 }
@@ -28,19 +29,23 @@ const useNotifications = (isSwEnabled) => {
   }, [])
 
   const requestPermission = async () => {
-    const permission = await Notification.requestPermission()
-    console.log('requestPermission', permission)
-    return permission
+    return new Promise((resolve, reject) => {
+      if (!isSafari) {
+        Notification.requestPermission().then((permission) =>
+          resolve(permission)
+        )
+      } else {
+        Notification.requestPermission((permission) => {
+          resolve(permission)
+        })
+      }
+    })
   }
 
   const getPermission = () => Notification.permission
 
   const showNotification = (title, options) => {
-    if (
-      isSwEnabled &&
-      swRegistration &&
-      swRegistration.showNotification
-    ) {
+    if (isSwEnabled && swRegistration && swRegistration.showNotification) {
       return swRegistration.showNotification(title, options)
     } else return new Notification(title, options)
   }

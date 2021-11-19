@@ -25,3 +25,4 @@ export function getRandomInt(max) {
     return Math.floor(Math.random() * max)
   }
   
+export const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
