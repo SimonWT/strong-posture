@@ -101,6 +101,8 @@ function Action (props) {
 
     function playAgain () {
         setSeconds(totalSeconds);
+        start()
+        sendAmplitudeData('timer-start-again')
     }
 
     function start () {
@@ -244,7 +246,7 @@ function Action (props) {
                             <Stopwatch seconds={seconds} active={timerState === TIMER_ACTIVE} />
                             :
                             <>
-                                <p style={{fontSize: '20px'}}> You kept posture correct for</p>
+                                <p style={{ fontSize: '20px' }}> You kept posture correct for</p>
                                 <span><h2 className="timer">{seconds}</h2>seconds</span>
                             </>
                         }
@@ -274,16 +276,20 @@ function Action (props) {
                 </div>
             }
             {
-                timerState !== TIMER_ACTIVE && timerState !== TIMER_PAUSED &&
+                timerState !== TIMER_ACTIVE && timerState !== TIMER_PAUSED && seconds > 0 &&
                 <Button onClick={start} className="main-big-button action-start">Start</Button>
             }
             {seconds <= 0 &&
-                <div className="congrats-bottom">
-                    <Link to="/" className="no-underline"><Button>Home</Button></Link>
-                    <Button onClick={playAgain}>Again</Button>
-                </div>
+                <>
+                    <Button onClick={playAgain} className="main-big-button action-start">Play Again</Button>
+                    <div className="congrats-bottom">
+                        <Link to="/" className="no-underline"><Button>Home</Button></Link>
+                        {/* <Button onClick={playAgain}>Again</Button> */}
+                    </div>
+                </>
             }
             <AskPermissions setAudioContext={props.setAudioContext} permissions={props.permissions} setPermissions={props.setPermissions} />
+            <audio id="audio" src="/audio/minecraft_damage.mp3" styleName="display: none;" />
         </div>
     )
 }

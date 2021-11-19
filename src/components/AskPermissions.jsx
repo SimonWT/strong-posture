@@ -4,6 +4,7 @@ import { Dialog, Switch } from 'ui-neumorphism'
 import useNotifications from '../utils/useNotifications'
 import useAudio from '../utils/useAudio'
 import { isSafari } from '../utils/helpers'
+import { sendAmplitudeData } from '../utils/amplitude'
 
 function AskPermissions (props) {
     const [isModalVisible, setModalVisibility] = useState(false)
@@ -29,10 +30,14 @@ function AskPermissions (props) {
         console.log('requestedPermission', requestedPermission)
         const permission = requestedPermission ?? getPermission()
         console.log('permission', permission)
+        sendAmplitudeData('push-notifications-permission', permission)
         setPushEnabled(permission === 'granted')
         setSwitchKey((value) => value += 1)
         if (permission === 'granted') {
-            props.setPermissions({ ...props.permissions, notifications: true, sound: true })
+            props.setPermissions({ ...props.permissions, notifications: true, sound: true})
+            setModalVisibility(false)
+        }else if(permission === 'denied') {
+            props.setPermissions({ ...props.permissions, notifications: false, sound: true })
             setModalVisibility(false)
         }
     }

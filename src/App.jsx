@@ -82,7 +82,6 @@ function App (props) {
           </Route>
         </Switch>
       </div>
-      <audio id="audio" src="/audio/minecraft_damage.mp3" styleName="display: none;" />
     </Router>
   )
 }

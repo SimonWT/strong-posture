@@ -3,6 +3,8 @@ import { Fab, Button } from 'ui-neumorphism'
 import { Link, useHistory } from "react-router-dom";
 import { isMobile } from './PostureRecognition/util'
 
+import { sendAmplitudeData } from '../utils/amplitude'
+
 function Permissions (props) {
     let history = useHistory();
 
@@ -13,6 +15,7 @@ function Permissions (props) {
             state: { startTimerOnEnter: true }
         }
         history.push(location);
+        sendAmplitudeData('user-response-on-asking-video', false)
     }
 
     async function enableVideo () {
@@ -20,7 +23,10 @@ function Permissions (props) {
         const videoHeight = 500
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             alert('You browser does not support video')
+            sendAmplitudeData('user-browser-support-video', false)
+            history.push(location);
         }
+        sendAmplitudeData('user-browser-support-video', true)
         props.setPermissions({ ...props.permissions, video: true })
         const mobile = isMobile()
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -36,6 +42,7 @@ function Permissions (props) {
             pathname: '/action',
             state: { startTimerOnEnter: true }
         }
+        sendAmplitudeData('user-response-on-asking-video', true)
         history.push(location);
     }
 
