@@ -43,7 +43,7 @@ function NotificationsSettings (props) {
     function onSoundChange ({ checked }) {
         setSoundPermission(checked)
         props.setPermissions({ ...props.permissions, sound: checked })
-        warmupAudio(props.setAudioContext)
+        warmupAudio()
         sendAmplitudeData('sound-notifications-switched-to', checked)
     }
 

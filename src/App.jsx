@@ -40,7 +40,6 @@ function App (props) {
 
   const [isLoading, setLoading] = useState(true)
 
-  const [audioContext, setAudioContext] = useState(undefined)
   const [videoStream, setVideoStream] = useState(undefined)
 
   useSettings(settings, setSettings, setLoading)
@@ -56,18 +55,15 @@ function App (props) {
               permissions={permissions}
               timeIntervals={timeIntervals}
               setTimeIntervals={setTimeIntervals}
-              setAudioContext={setAudioContext}
             />
             {!isLoading &&
-              <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} settings={settings} />
+              <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} />
             }
           </Route>
           <Route path="/permissions">
             <Permissions
               setPermissions={setPermissions}
               permissions={permissions}
-              audioContext={audioContext}
-              setAudioContext={setAudioContext}
               setVideoStream={setVideoStream}
             />
           </Route>

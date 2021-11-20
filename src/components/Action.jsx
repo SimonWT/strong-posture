@@ -45,7 +45,7 @@ function Action (props) {
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
+    const [toggleAudio, warmupAudio, playHurtSound] = useAudio()
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
@@ -76,7 +76,7 @@ function Action (props) {
                         toggleBadImages()
                     }
                     if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
-                        toggleAudio(props.audioContext)
+                        toggleAudio()
                     }
                 }
             } else {
@@ -88,7 +88,7 @@ function Action (props) {
     useEffect(() => {
         if (!isPostureCorrect) {
             if (props.permissions.sound)
-                playHurtSound(props.audioContext)
+                playHurtSound()
             if (props.permissions.notifications) {
                 remindByNotification()
             }
@@ -123,7 +123,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.play()
         if (props.permissions.sound)
-            warmupAudio(props.setAudioContext)
+            warmupAudio()
     }
 
     function stop () {
@@ -288,8 +288,8 @@ function Action (props) {
                     </div>
                 </>
             }
-            <AskPermissions setAudioContext={props.setAudioContext} permissions={props.permissions} setPermissions={props.setPermissions} />
-            <audio id="audio" src="/audio/minecraft_damage.mp3" styleName="display: none;" />
+            <AskPermissions permissions={props.permissions} setPermissions={props.setPermissions} />
+            <audio id="audio" src="/audio/minecraft_damage.mp3" style={{ display: 'None' }} />
         </div>
     )
 }

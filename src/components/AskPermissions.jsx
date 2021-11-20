@@ -13,7 +13,7 @@ function AskPermissions (props) {
     const [switchKey, setSwitchKey] = useState(0)
 
     const [notify, remindByNotification, requestPermission, getPermission, notifySw] = useNotifications(true)
-    const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
+    const [toggleAudio, warmupAudio, playHurtSound] = useAudio()
 
     useEffect(() => {
         if (getPermission() !== 'granted') {
@@ -22,7 +22,7 @@ function AskPermissions (props) {
     }, [])
 
     const onPushNotificationsChange = async () => {
-        warmupAudio(props.setAudioContext)
+        warmupAudio()
         setPushEnabled(false)
         setSwitchKey((value) => value += 1)
         console.log('permission 0', getPermission())
