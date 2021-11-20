@@ -10,6 +10,7 @@ import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorph
 import GameView from './Game/GameView'
 import PostureRecognition from "./PostureRecognition/PostureRecognition";
 import AskPermissions from './AskPermissions'
+import Audio from './Audio'
 
 import useAudio from '../utils/useAudio'
 import useNotifications from '../utils/useNotifications'
@@ -45,7 +46,7 @@ function Action (props) {
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio, warmupAudio, playHurtSound] = useAudio()
+    const [toggleAudio, warmupAudio, playHurtSound, sounds] = useAudio() 
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
@@ -62,6 +63,7 @@ function Action (props) {
             recognitionRef.current.stop()
         notify('You are awesome!!!', 'Nice posture, bro 👊')
         sendAmplitudeData('session-ended')
+        toggleAudio('levelCompletion')
     }
 
     useEffect(() => {
@@ -71,6 +73,8 @@ function Action (props) {
                 if (!props.permissions.video) {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                         remindByNotification()
+                        // TODO: review in terms of UX
+                        toggleAudio('positiveNotification')
                     }
                     if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
                         toggleBadImages()
@@ -289,7 +293,7 @@ function Action (props) {
                 </>
             }
             <AskPermissions permissions={props.permissions} setPermissions={props.setPermissions} />
-            <audio id="audio" src="/audio/minecraft_damage.mp3" style={{ display: 'None' }} />
+            <Audio sounds={sounds} />
         </div>
     )
 }
