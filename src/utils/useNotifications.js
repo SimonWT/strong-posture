@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { getRandomInt, isSafari } from './helpers'
 
+const icon = 'https://strong-posture.web.app/assets/slouch.b681574f.svg'
+
 const reminderVariants = [
   { text: 'Just remind you', body: 'Keep your posture correctly bruh' },
   { text: 'Straighten up', body: 'Your posture not correct' },
@@ -53,19 +55,21 @@ const useNotifications = (isSwEnabled) => {
   const notify = async (text, body) => {
     if (!('Notification' in window)) {
       alert('This browser does not support desktop notification')
+      return
     }
     // Проверка разрешения на отправку уведомлений
     else if (getPermission() === 'granted') {
       // Если разрешено, то создаём уведомление
-      showNotification(text, { body })
+      showNotification(text, { body, icon })
     }
     // В противном случае, запрашиваем разрешение
     else if (getPermission() !== 'denied') {
       const permission = await requestPermission()
       if (permission === 'granted') {
-        showNotification(text, { body })
+        showNotification(text, { body, icon })
       }
     }
+    
   }
 
   const notifySw = (title, body) => {
