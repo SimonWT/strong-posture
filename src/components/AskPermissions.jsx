@@ -30,7 +30,7 @@ function AskPermissions (props) {
         console.log('requestedPermission', requestedPermission)
         const permission = requestedPermission ?? getPermission()
         console.log('permission', permission)
-        sendAmplitudeData('push-notifications-permission', permission)
+        sendAmplitudeData('push-notifications-permission', { permission })
         setPushEnabled(permission === 'granted')
         setSwitchKey((value) => value += 1)
         if (permission === 'granted') {

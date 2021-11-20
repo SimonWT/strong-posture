@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Switch, TextField } from 'ui-neumorphism'
-import { getSeconsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
+import { getSecondsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
 import useAudio from '../utils/useAudio'
 import { sendAmplitudeData } from '../utils/amplitude'
 import { debounce } from "debounce";
@@ -44,23 +44,23 @@ function NotificationsSettings (props) {
         setSoundPermission(checked)
         props.setPermissions({ ...props.permissions, sound: checked })
         warmupAudio()
-        sendAmplitudeData('sound-notifications-switched-to', checked)
+        sendAmplitudeData('sound-notifications-switched-to', { isEnabled: checked })
     }
 
     function onVideoChange ({ checked }) {
         setVideoPermission(checked)
         props.setPermissions({ ...props.permissions, video: checked })
-        sendAmplitudeData('video-settings-to', checked)
+        sendAmplitudeData('video-settings-to',  { isEnabled: checked })
     }
 
     function onImagesChange ({ checked }) {
         props.setPermissions({ ...props.permissions, images: checked })
-        sendAmplitudeData('image-settings-switched-to', checked)
+        sendAmplitudeData('image-settings-switched-to',  { isEnabled: checked })
     }
 
     function onIntervalInput ($event, notificationType) {
         console.log('onIntervalInput', $event.target.value, notificationType)
-        const seconds = getSeconsFromTime($event.target.value)
+        const seconds = getSecondsFromTime($event.target.value)
         props.setTimeIntervals({ ...props.timeIntervals, [notificationType]: seconds })
 
         trackAmplitudeIntervalChange(notificationType, $event.target.value)

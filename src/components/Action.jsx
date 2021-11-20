@@ -14,7 +14,7 @@ import AskPermissions from './AskPermissions'
 import useAudio from '../utils/useAudio'
 import useNotifications from '../utils/useNotifications'
 
-import { getSeconsFromTime } from '../utils/helpers'
+import { getSecondsFromTime } from '../utils/helpers'
 
 import { sendAmplitudeData } from '../utils/amplitude'
 
@@ -106,7 +106,7 @@ function Action (props) {
     }
 
     function start () {
-        const seconds = !props.settings.useStopwatchInsteadOfTimer ? getSeconsFromTime(userTimerInput) : initTotalTime
+        const seconds = !props.settings.useStopwatchInsteadOfTimer ? getSecondsFromTime(userTimerInput) : initTotalTime
         setTotalSeconds(seconds)
         setSeconds(seconds);
         play()
@@ -140,7 +140,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-stop', seconds)
+        sendAmplitudeData('timer-stop', { seconds })
     }
 
     function pause () {
@@ -151,7 +151,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-pause', seconds)
+        sendAmplitudeData('timer-pause', { seconds })
     }
 
     function resume () {
@@ -169,7 +169,7 @@ function Action (props) {
         console.log('original value', value, typeof (value))
         setUserTimerInput(value)
         localStorage.setItem('user-timer-input', value)
-        sendAmplitudeData('timer-duration-changed', getSeconsFromTime(value))
+        sendAmplitudeData('timer-duration-changed', { seconds: getSecondsFromTime(value) })
     }
 
     function onTimeInputChange ($event) {
@@ -183,11 +183,11 @@ function Action (props) {
 
     function onSubmitTimerInput () {
         setUserTimerInputChaged(false)
-        const seconds = getSeconsFromTime(userTimerInput)
+        const seconds = getSecondsFromTime(userTimerInput)
         setTotalSeconds(seconds)
         setSeconds(seconds);
 
-        sendAmplitudeData('timer-duration-changed-on-run', seconds)
+        sendAmplitudeData('timer-duration-changed-on-run', { seconds })
     }
 
     function increaseTicks () {
@@ -199,7 +199,7 @@ function Action (props) {
         setIsPostureCorrect(payload)
         increaseTicks()
 
-        sendAmplitudeData('recognition-result', payload)
+        sendAmplitudeData('recognition-result', { isCorrect: payload})
     }
 
     return (

@@ -15,7 +15,7 @@ function Permissions (props) {
             state: { startTimerOnEnter: true }
         }
         history.push(location);
-        sendAmplitudeData('user-response-on-asking-video', false)
+        sendAmplitudeData('user-response-on-asking-video', { userAnswer: false })
     }
 
     async function enableVideo () {
@@ -23,10 +23,10 @@ function Permissions (props) {
         const videoHeight = 500
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             alert('You browser does not support video')
-            sendAmplitudeData('user-browser-support-video', false)
+            sendAmplitudeData('user-browser-support-video', { userAnswer: false })
             history.push(location);
         }
-        sendAmplitudeData('user-browser-support-video', true)
+        sendAmplitudeData('user-browser-support-video', { userAnswer: true })
         props.setPermissions({ ...props.permissions, video: true })
         const mobile = isMobile()
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -42,7 +42,7 @@ function Permissions (props) {
             pathname: '/action',
             state: { startTimerOnEnter: true }
         }
-        sendAmplitudeData('user-response-on-asking-video', true)
+        sendAmplitudeData('user-response-on-asking-video', { userAnswer: true })
         history.push(location);
     }
 

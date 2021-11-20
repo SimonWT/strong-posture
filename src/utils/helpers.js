@@ -1,4 +1,4 @@
-export function getSeconsFromTime (time) {
+export function getSecondsFromTime (time) {
     let [minutes, seconds] = time.split(":")
     return parseInt(minutes) * 60 + parseInt(seconds)
 }
