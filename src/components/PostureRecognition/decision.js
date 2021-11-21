@@ -17,9 +17,13 @@ function check_lean_forward(key_points) {
     key_points['leftEye'].x !== -1 &&
     key_points['rightEye'].x !== -1 &&
     Math.abs(key_points['leftEye'].x - key_points['rightEye'].x) >=
-      THRESHOLD_VALUE * scale
-  )
+      75 * scale
+  ) {
+    console.log('distance between eyes = ', Math.abs(key_points['leftEye'].x - key_points['rightEye'].x))
+    console.log('leaning forward')
     return false
+  }
+
   return true
 }
 
@@ -34,9 +38,12 @@ function check_slump(key_points) {
     key_points['leftShoulder'].y !== -1 &&
     key_points['nose'].y !== -1 &&
     key_points['leftShoulder'].y - key_points['nose'].y <=
-      scale * THRESHOLD_VALUE
-  )
+      scale * 160
+  ) {
+    console.log('shoulder-nose distance =', key_points['leftShoulder'].y - key_points['nose'].y)
+    console.log('slumping..')
     return false
+  }
 
   return true
 }
@@ -53,17 +60,22 @@ function check_head_drop(key_points) {
   if (
     key_points['leftEye'].y != -1 &&
     key_points['leftEar'].y != -1 &&
-    key_points['leftEye'].y > key_points['leftEar'].y + scale * THRESHOLD_VALUE
-  )
+    key_points['leftEar'].y - key_points['leftEye'].y < scale * 20
+  ){
+    console.log('eye-ear distance =', key_points['leftEye'].y - key_points['leftEar'].y)
+    console.log('droped head..')
     return false
+  }
 
   if (
     key_points['rightEye'].y !== -1 &&
     key_points['rightEar'].y !== -1 &&
-    key_points['rightEye'].y >
-      key_points['rightEar'].y + scale * THRESHOLD_VALUE
-  )
+    key_points['rightEar'].y - key_points['rightEye'].y < scale * 20
+  ) {
+    console.log('eye-ear distance =', key_points['leftEye'].y - key_points['leftEar'].y)
+    console.log('droped head right..')
     return false
+  }
 
   return true
 }

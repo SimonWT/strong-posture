@@ -6,6 +6,10 @@ import { determineIsPostureCorrect } from './decision'
 import * as posenet from '@tensorflow-models/posenet'
 
 
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
+
 const PostureRecognition = forwardRef((props, ref) => {
 
     const [isActive, setIsActive] = useState(false)
@@ -101,7 +105,7 @@ const PostureRecognition = forwardRef((props, ref) => {
         canvas.height = videoHeight
 
         const poseDetectionFrame = async () => {
-
+            // await sleep(1000)
             // Begin monitoring code for frames per second
 
             let poses = []
