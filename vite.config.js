@@ -3,6 +3,9 @@ import reactRefresh from '@vitejs/plugin-react-refresh'
 
 export default defineConfig({
   plugins: [reactRefresh()],
+  define: {
+    'process.env': {},
+  },
   // optimizeDeps: {
   //   include: ['@tensorflow-models/posenet']
   // },

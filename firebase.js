@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDvdQwlca9pwEPaYFgaZ5LldkFtnZPHF-A",
+    apiKey: process.env.FIRERBASE_API_KEY,
     authDomain: "strong-posture.firebaseapp.com",
     databaseURL: "https://strong-posture-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "strong-posture",
