@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Switch, TextField } from 'ui-neumorphism'
-import { getSeconsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
+import { getSecondsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
 import useAudio from '../utils/useAudio'
+import { sendAmplitudeData } from '../utils/amplitude'
+import { debounce } from "debounce";
+
+const trackAmplitudeIntervalChange = debounce((notificationType, value) => sendAmplitudeData('time-interval-changed', {
+    notificationType, interval: value
+}), 4000, false)
 
 function NotificationsSettings (props) {
     const isBrowserSupportNotifications = ("Notification" in window) ? true : false
@@ -14,11 +20,11 @@ function NotificationsSettings (props) {
     const [_, warmupAudio] = useAudio()
 
     useEffect(() => {
-       const { sound, notifications, video } = props.permissions
-       setSoundPermission(sound)
-       setNotifcationPermission(notifications)
-       setVideoPermission(video)
-       setSwitchKey(v => v+=1)
+        const { sound, notifications, video } = props.permissions
+        setSoundPermission(sound)
+        setNotifcationPermission(notifications)
+        setVideoPermission(video)
+        setSwitchKey(v => v += 1)
     }, [props.permissions])
 
     function onNotificationsChange ({ checked }) {
@@ -37,34 +43,27 @@ function NotificationsSettings (props) {
     function onSoundChange ({ checked }) {
         setSoundPermission(checked)
         props.setPermissions({ ...props.permissions, sound: checked })
-        warmupAudio(props.setAudioContext)
-
-        // function unlockAudio() {
-        //     const sound = new Audio('https://firebasestorage.googleapis.com/v0/b/strong-posture.appspot.com/o/Minecraft%20Damage%20(Oof)%20-%20Sound%20Effect%20(HD).mp3?alt=media&token=c57ff8e1-ca58-42ed-bf7c-66ef86c64a0b');
-        
-        //     sound.play();
-        //     sound.pause();
-        //     sound.currentTime = 0;
-        
-        //     document.body.removeEventListener('click', unlockAudio)
-        //     document.body.removeEventListener('touchstart', unlockAudio)
-        // }
-
+        warmupAudio()
+        sendAmplitudeData('sound-notifications-switched-to', { isEnabled: checked })
     }
 
     function onVideoChange ({ checked }) {
         setVideoPermission(checked)
         props.setPermissions({ ...props.permissions, video: checked })
+        sendAmplitudeData('video-settings-to',  { isEnabled: checked })
     }
 
     function onImagesChange ({ checked }) {
         props.setPermissions({ ...props.permissions, images: checked })
+        sendAmplitudeData('image-settings-switched-to',  { isEnabled: checked })
     }
 
     function onIntervalInput ($event, notificationType) {
         console.log('onIntervalInput', $event.target.value, notificationType)
-        const seconds = getSeconsFromTime($event.target.value)
+        const seconds = getSecondsFromTime($event.target.value)
         props.setTimeIntervals({ ...props.timeIntervals, [notificationType]: seconds })
+
+        trackAmplitudeIntervalChange(notificationType, $event.target.value)
     }
 
     return (

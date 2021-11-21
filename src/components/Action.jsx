@@ -4,16 +4,18 @@ import { Link, useLocation } from "react-router-dom";
 import * as workerTimers from 'worker-timers';
 
 import Timer from './Timer'
+import Stopwatch from './Stopwatch'
 import ConsequencesImages from './ConsequencesImages'
 import { ProgressLinear, Button, Card, IconButton, TextField } from 'ui-neumorphism'
 import GameView from './Game/GameView'
 import PostureRecognition from "./PostureRecognition/PostureRecognition";
 import AskPermissions from './AskPermissions'
+import Audio from './Audio'
 
 import useAudio from '../utils/useAudio'
 import useNotifications from '../utils/useNotifications'
 
-import { getSeconsFromTime } from '../utils/helpers'
+import { getSecondsFromTime } from '../utils/helpers'
 
 import { sendAmplitudeData } from '../utils/amplitude'
 
@@ -29,7 +31,9 @@ const TIMER_DONE = 'TIMER_DONE'
 
 
 function Action (props) {
-    const [totalSeconds, setTotalSeconds] = useState(15 * 60);
+    const initTotalTime = !props.settings.useStopwatchInsteadOfTimer ? 15 * 60 : 0
+
+    const [totalSeconds, setTotalSeconds] = useState(initTotalTime);
     const [userTimerInput, setUserTimerInput] = useState(getSavedTimer())
     const [seconds, setSeconds] = useState(totalSeconds);
     const [timerId, setTimerId] = useState(null);
@@ -42,38 +46,45 @@ function Action (props) {
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
+    const [toggleAudio, warmupAudio, playHurtSound, sounds] = useAudio() 
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
-        return lsValue ?? "15:00"
+        return (lsValue ?? "15:00")
+    }
+
+    function finishSession () {
+        workerTimers.clearInterval(timerId)
+        setTimerState(TIMER_DONE)
+        if (props.permissions.video)
+            recognitionRef.current.stop()
+        notify('You are awesome!!!', 'Nice posture, bro 👊')
+        sendAmplitudeData('session-ended')
+        toggleAudio('levelCompletion')
     }
 
     useEffect(() => {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
-            if (seconds > 0) {
+            if (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) {
                 if (!props.permissions.video) {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                         remindByNotification()
+                        // TODO: review in terms of UX
+                        toggleAudio('positiveNotification')
                     }
                     if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
                         toggleBadImages()
                     }
                     if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
-                        toggleAudio(props.audioContext)
+                        toggleAudio()
                     }
                 }
             } else {
-                workerTimers.clearInterval(timerId)
-                setTimerState(TIMER_DONE)
-                if (props.permissions.video)
-                    recognitionRef.current.stop()
-                notify('You are awesome!!!', 'Nice posture, bro 👊')
-                sendAmplitudeData('session-ended')
+                finishSession()
             }
         }
     }, [seconds])
@@ -81,7 +92,7 @@ function Action (props) {
     useEffect(() => {
         if (!isPostureCorrect) {
             if (props.permissions.sound)
-                playHurtSound(props.audioContext)
+                playHurtSound()
             if (props.permissions.notifications) {
                 remindByNotification()
             }
@@ -94,10 +105,12 @@ function Action (props) {
 
     function playAgain () {
         setSeconds(totalSeconds);
+        start()
+        sendAmplitudeData('timer-start-again')
     }
 
     function start () {
-        const seconds = getSeconsFromTime(userTimerInput)
+        const seconds = !props.settings.useStopwatchInsteadOfTimer ? getSecondsFromTime(userTimerInput) : initTotalTime
         setTotalSeconds(seconds)
         setSeconds(seconds);
         play()
@@ -106,26 +119,32 @@ function Action (props) {
     }
 
     function play () {
-        const intervalId = workerTimers.setInterval(() => (setSeconds(seconds => seconds - 1)), 1000)
+        const secondsManipulation = !props.settings.useStopwatchInsteadOfTimer ? ((seconds) => seconds - 1) : ((seconds) => seconds + 1)
+        let intervalId = workerTimers.setInterval(() => (setSeconds(secondsManipulation)), 1000)
         setTimerId(intervalId)
         setTimerState(TIMER_ACTIVE)
 
         if (props.permissions.video)
             recognitionRef.current.play()
         if (props.permissions.sound)
-            warmupAudio(props.setAudioContext)
+            warmupAudio()
     }
 
     function stop () {
         console.log('stopped')
         setTimerState(TIMER_NULL)
         workerTimers.clearInterval(timerId)
-        setSeconds(totalSeconds)
+
+        if (props.settings.useStopwatchInsteadOfTimer) {
+            finishSession()
+        } else {
+            setSeconds(totalSeconds)
+        }
 
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-stop', seconds)
+        sendAmplitudeData('timer-stop', { seconds })
     }
 
     function pause () {
@@ -136,7 +155,7 @@ function Action (props) {
         if (props.permissions.video)
             recognitionRef.current.stop()
 
-        sendAmplitudeData('timer-pause', seconds)
+        sendAmplitudeData('timer-pause', { seconds })
     }
 
     function resume () {
@@ -154,7 +173,7 @@ function Action (props) {
         console.log('original value', value, typeof (value))
         setUserTimerInput(value)
         localStorage.setItem('user-timer-input', value)
-        sendAmplitudeData('timer-duration-changed', getSeconsFromTime(value))
+        sendAmplitudeData('timer-duration-changed', { seconds: getSecondsFromTime(value) })
     }
 
     function onTimeInputChange ($event) {
@@ -168,11 +187,11 @@ function Action (props) {
 
     function onSubmitTimerInput () {
         setUserTimerInputChaged(false)
-        const seconds = getSeconsFromTime(userTimerInput)
+        const seconds = getSecondsFromTime(userTimerInput)
         setTotalSeconds(seconds)
         setSeconds(seconds);
 
-        sendAmplitudeData('timer-duration-changed-on-run', seconds)
+        sendAmplitudeData('timer-duration-changed-on-run', { seconds })
     }
 
     function increaseTicks () {
@@ -184,7 +203,7 @@ function Action (props) {
         setIsPostureCorrect(payload)
         increaseTicks()
 
-        sendAmplitudeData('recognition-result', payload)
+        sendAmplitudeData('recognition-result', { isCorrect: payload})
     }
 
     return (
@@ -192,38 +211,57 @@ function Action (props) {
             {(props.permissions.video) ?
                 (
                     <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} />}
-                        <PostureRecognition tickTimeOut={1000} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} /></div>
+                        <PostureRecognition tickTimeOut={1} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} showVideo canvasWidth="300px" /></div>
                 )
                 :
                 (props.permissions.images && timerState === TIMER_ACTIVE &&
                     <ConsequencesImages ref={badImgsRef} />)
             }
-            {seconds <= 0 &&
+            {timerState === TIMER_DONE &&
                 <div className="congrats-head">
                     <img src={completedTask} alt="Congrats" />
                     <h1>Congrats!</h1>
+                    {/* <h2>{ seconds }</h2> */}
                 </div>
             }
-            {timerState === TIMER_ACTIVE && seconds > 0 &&
+            {timerState === TIMER_ACTIVE && (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) &&
                 <h1 className="action-title"> Keep your posture correctly! </h1>
             }
 
-            {timerState === TIMER_NULL ?
-                <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
-                :
-                <Card inset className="action-timer-card">
-                    <Timer seconds={seconds} totalSeconds={totalSeconds} >
-                        <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active': ''}`}>
-                            <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
-                            {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
-                        </div>
-                    </Timer>
-                </Card>
+            {
+                !props.settings.useStopwatchInsteadOfTimer ?
+                    <>
+                        {timerState === TIMER_NULL ?
+                            <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
+                            :
+                            <Card inset className="action-timer-card">
+                                <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
+                                    <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active' : ''}`}>
+                                        <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
+                                        {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
+                                    </div>
+                                </Timer>
+                            </Card>
+                        }
+                    </>
+                    :
+                    <>
+                        {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) ?
+                            <Stopwatch seconds={seconds} active={timerState === TIMER_ACTIVE} />
+                            :
+                            <>
+                                <p style={{ fontSize: '20px' }}> You kept posture correct for</p>
+                                <span><h2 className="timer">{seconds}</h2>seconds</span>
+                            </>
+                        }
+                    </>
             }
 
             {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
-                    <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')} />
+                    {!props.settings.useStopwatchInsteadOfTimer &&
+                        <ProgressLinear className="timer-progress" height={20} value={((totalSeconds - seconds) / totalSeconds) * 100} color={(seconds > 0 ? '#808B9F' : 'var(--success)')} />
+                    }
                     {seconds > 0 &&
                         <div className="btns-group" >
                             <Button onClick={stop}>Stop</Button>
@@ -242,16 +280,20 @@ function Action (props) {
                 </div>
             }
             {
-                timerState !== TIMER_ACTIVE && timerState !== TIMER_PAUSED &&
+                timerState !== TIMER_ACTIVE && timerState !== TIMER_PAUSED && seconds > 0 &&
                 <Button onClick={start} className="main-big-button action-start">Start</Button>
             }
             {seconds <= 0 &&
-                <div className="congrats-bottom">
-                    <Link to="/" className="no-underline"><Button>Home</Button></Link>
-                    <Button onClick={playAgain}>Again</Button>
-                </div>
+                <>
+                    <Button onClick={playAgain} className="main-big-button action-start">Play Again</Button>
+                    <div className="congrats-bottom">
+                        <Link to="/" className="no-underline"><Button>Home</Button></Link>
+                        {/* <Button onClick={playAgain}>Again</Button> */}
+                    </div>
+                </>
             }
-            <AskPermissions setAudioContext={props.setAudioContext} permissions={props.permissions} setPermissions={props.setPermissions} />
+            <AskPermissions permissions={props.permissions} setPermissions={props.setPermissions} />
+            <Audio sounds={sounds} />
         </div>
     )
 }

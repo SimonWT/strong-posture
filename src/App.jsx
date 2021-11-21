@@ -13,6 +13,8 @@ import Header from './components/Header'
 import PostureRecognition from './components/PostureRecognition/PostureRecognition'
 import TestNotifications from './components/TestNotifications'
 
+import useSettings from './utils/useSettings'
+
 
 function App (props) {
 
@@ -32,11 +34,19 @@ function App (props) {
     images: 20
   })
 
-  const [audioContext, setAudioContext] = useState(undefined)
+  const [settings, setSettings] = useState({
+    useStopwatchInsteadOfTimer: false
+  })
+
+  const [isLoading, setLoading] = useState(true)
+
   const [videoStream, setVideoStream] = useState(undefined)
+
+  useSettings(settings, setSettings, setLoading)
 
   return (
     <Router>
+      {isLoading && <div className="loader-container"><div className="sk-spinner-pulse"></div></div>}
       <div className="App">
         <Switch>
           <Route path="/action">
@@ -45,16 +55,15 @@ function App (props) {
               permissions={permissions}
               timeIntervals={timeIntervals}
               setTimeIntervals={setTimeIntervals}
-              setAudioContext={setAudioContext}
             />
-            <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} audioContext={audioContext} setAudioContext={setAudioContext} videoStream={videoStream} />
+            {!isLoading &&
+              <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} />
+            }
           </Route>
           <Route path="/permissions">
             <Permissions
               setPermissions={setPermissions}
               permissions={permissions}
-              audioContext={audioContext}
-              setAudioContext={setAudioContext}
               setVideoStream={setVideoStream}
             />
           </Route>
@@ -68,7 +77,6 @@ function App (props) {
             <Home />
           </Route>
         </Switch>
-
       </div>
     </Router>
   )

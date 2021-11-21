@@ -1,4 +1,4 @@
-export function getSeconsFromTime (time) {
+export function getSecondsFromTime (time) {
     let [minutes, seconds] = time.split(":")
     return parseInt(minutes) * 60 + parseInt(seconds)
 }
@@ -25,3 +25,4 @@ export function getRandomInt(max) {
     return Math.floor(Math.random() * max)
   }
   
+export const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)

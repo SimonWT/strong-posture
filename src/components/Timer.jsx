@@ -7,7 +7,8 @@ function Timer (props) {
     const [time, setTime] = useState('00:00')
 
     useEffect(() => {
-        setTime(getStringTimeFromSeconds(props.seconds))
+        const secondsToShow = !props.settings.useStopwatchInsteadOfTimer ? props.seconds : (props.totalSeconds - props.seconds)
+        setTime(getStringTimeFromSeconds(secondsToShow))
     }, [props.seconds])
 
     useEffect(() => {

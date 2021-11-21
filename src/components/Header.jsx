@@ -3,6 +3,7 @@ import { IconButton, Dialog, Card } from 'ui-neumorphism'
 import settings from '../assets/svg/settings.svg'
 import question from '../assets/svg/question.svg'
 import NotificationsSettings from './NotificationsSettings'
+import { sendAmplitudeData } from '../utils/amplitude'
 
 
 function Header (props) {
@@ -11,10 +12,10 @@ function Header (props) {
 
     return (
         <div className="header">
-            <IconButton rounded text={false} onClick={() => setQuestionModalVisibility(true)}>
+            <IconButton rounded text={false} onClick={() => (setQuestionModalVisibility(true), sendAmplitudeData('user-opens-question'))}>
                 <img src={question} className="btn-icon" alt="" />
             </IconButton>
-            <IconButton rounded text={false} onClick={() => setSettingsModalVisibility(true)}>
+            <IconButton rounded text={false} onClick={() => (setSettingsModalVisibility(true),sendAmplitudeData('user-opens-settings'))}>
                 <img src={settings} className="btn-icon" alt="" />
             </IconButton>
 

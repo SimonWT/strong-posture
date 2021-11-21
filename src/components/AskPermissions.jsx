@@ -3,6 +3,8 @@ import { Dialog, Switch } from 'ui-neumorphism'
 
 import useNotifications from '../utils/useNotifications'
 import useAudio from '../utils/useAudio'
+import { isSafari } from '../utils/helpers'
+import { sendAmplitudeData } from '../utils/amplitude'
 
 function AskPermissions (props) {
     const [isModalVisible, setModalVisibility] = useState(false)
@@ -11,7 +13,7 @@ function AskPermissions (props) {
     const [switchKey, setSwitchKey] = useState(0)
 
     const [notify, remindByNotification, requestPermission, getPermission, notifySw] = useNotifications(true)
-    const [toggleAudio, warmupAudio, playHurtSound] = useAudio(props.setAudioContext)
+    const [toggleAudio, warmupAudio, playHurtSound] = useAudio()
 
     useEffect(() => {
         if (getPermission() !== 'granted') {
@@ -20,15 +22,22 @@ function AskPermissions (props) {
     }, [])
 
     const onPushNotificationsChange = async () => {
-        warmupAudio(props.setAudioContext)
+        warmupAudio()
         setPushEnabled(false)
         setSwitchKey((value) => value += 1)
+        console.log('permission 0', getPermission())
         const requestedPermission = await requestPermission()
+        console.log('requestedPermission', requestedPermission)
         const permission = requestedPermission ?? getPermission()
+        console.log('permission', permission)
+        sendAmplitudeData('push-notifications-permission', { permission })
         setPushEnabled(permission === 'granted')
         setSwitchKey((value) => value += 1)
         if (permission === 'granted') {
-            props.setPermissions({ ...props.permissions, notifications: true, sound: true })
+            props.setPermissions({ ...props.permissions, notifications: true, sound: true})
+            setModalVisibility(false)
+        }else if(permission === 'denied') {
+            props.setPermissions({ ...props.permissions, notifications: false, sound: true })
             setModalVisibility(false)
         }
     }
@@ -37,7 +46,7 @@ function AskPermissions (props) {
         <Dialog visible={isModalVisible} className="ask-permission-dialog">
             <div>
                 <Switch onChange={onPushNotificationsChange} key={switchKey} value={pushEnabled} checked={pushEnabled} color='var(--success)' label='Enable Push Notifications' />
-                {switchKey > 0 && <>
+                {switchKey > 0 && !isSafari && <>
                     <img src="/addressBarArrow.png" className="addressBarArrow" />
                     <img src="/addressBarArrow.png" className="addressBarArrow left" /> </>
                 }
