@@ -10,7 +10,6 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@tensorflow-models/posenet": "file:./posenet_dist",
     "@tensorflow/tfjs-backend-webgl": "^3.3.0",
     "@tensorflow/tfjs-converter": "^3.3.0",
     "@tensorflow/tfjs-core": "^3.3.0",
