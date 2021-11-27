@@ -7,7 +7,6 @@ const GameView = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
 
         somethingonposuture (payload) {
-            console.log('GAME', payload)
             setIsPostureCorrect(payload)
         }
 

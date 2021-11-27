@@ -165,6 +165,7 @@ const PostureRecognition = forwardRef((props, ref) => {
                     for (const point of keypoints) {
                         key_points[point.part] = point.position
                     }
+                    console.log('Dlya Vitali,',  score, keypoints)
                     const isPostureCorrect = determineIsPostureCorrect(key_points)
                     if(props.emitIsPostureCorrect)
                         props.emitIsPostureCorrect(isPostureCorrect)
