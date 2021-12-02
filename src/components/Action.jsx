@@ -29,6 +29,7 @@ const TIMER_ACTIVE = 'TIMER_ACTIVE'
 const TIMER_NULL = 'TIMER_NULL'
 const TIMER_DONE = 'TIMER_DONE'
 
+const POSTURE_TRESHOLD = 0.5
 
 function Action (props) {
     const initTotalTime = !props.settings.useStopwatchInsteadOfTimer ? 15 * 60 : 0
@@ -41,12 +42,13 @@ function Action (props) {
     const [isPostureCorrect, setIsPostureCorrect] = useState(true)
     const [recogntitionTicks, setRecogntitionTicks] = useState(0)
     const [isUserTimerInputChaged, setUserTimerInputChaged] = useState(false)
+    const [slidingWindow, setSlidingWindow] = useState([])
 
     const badImgsRef = React.createRef();
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio, warmupAudio, playHurtSound, sounds] = useAudio() 
+    const [toggleAudio, warmupAudio, playHurtSound, sounds] = useAudio()
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
@@ -66,6 +68,14 @@ function Action (props) {
         toggleAudio('levelCompletion')
     }
 
+    function getPostureCorrectnessFromWindow () {
+        const reducer = (previousValue, currentValue) => previousValue + currentValue
+        const sum = slidingWindow.reduce(reducer)
+        const ratio = sum / slidingWindow.length
+        if (ratio >= POSTURE_TRESHOLD) return true
+        return false
+    }
+
     useEffect(() => {
         const opposite = totalSeconds - seconds
         if (timerState === TIMER_ACTIVE) {
@@ -82,6 +92,21 @@ function Action (props) {
                     if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
                         toggleAudio()
                     }
+                } else {
+                    if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
+                        const isPostureCorrect = getPostureCorrectnessFromWindow()
+                        if (!isPostureCorrect) {
+                            remindByNotification()
+                            // TODO: review in terms of UX
+                            toggleAudio('fluteAlert')
+                        }
+                    }
+                    if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
+                        const isPostureCorrect = getPostureCorrectnessFromWindow()
+                        if (!isPostureCorrect) {
+                            toggleAudio('fluteAlertLong')
+                        }
+                    }
                 }
             } else {
                 finishSession()
@@ -89,15 +114,15 @@ function Action (props) {
         }
     }, [seconds])
 
-    useEffect(() => {
-        if (!isPostureCorrect) {
-            if (props.permissions.sound)
-                playHurtSound()
-            if (props.permissions.notifications) {
-                remindByNotification()
-            }
-        }
-    }, [recogntitionTicks])
+    // useEffect(() => {
+    //     if (!isPostureCorrect) {
+    //         if (props.permissions.sound)
+    //             playHurtSound()
+    //         if (props.permissions.notifications) {
+    //             remindByNotification()
+    //         }
+    //     }
+    // }, [recogntitionTicks])
 
     useEffect(() => {
         if (location?.state?.startTimerOnEnter) start()
@@ -194,16 +219,16 @@ function Action (props) {
         sendAmplitudeData('timer-duration-changed-on-run', { seconds })
     }
 
-    function increaseTicks () {
-        setRecogntitionTicks(ticks => ticks + 1)
-    }
+    // function increaseTicks () {
+    //     setRecogntitionTicks(ticks => ticks + 1)
+    // }
 
     function emitIsPostureCorrect (payload) {
-        gameRef.current.somethingonposuture(payload)
+        gameRef.current.somethingonposuture(payload) 
         setIsPostureCorrect(payload)
-        increaseTicks()
-
-        sendAmplitudeData('recognition-result', { isCorrect: payload})
+        // increaseTicks()
+        setSlidingWindow([...slidingWindow, payload ? 1 : 0])
+        sendAmplitudeData('recognition-result', { isCorrect: payload })
     }
 
     return (
