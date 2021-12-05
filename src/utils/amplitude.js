@@ -1,7 +1,9 @@
 import amplitude from 'amplitude-js';
 
+const ampliduteAppId = import.meta.env.VITE_AMPLITUDE_APP_ID
+
 export const initAmplitude = () => {
-  amplitude.getInstance().init('e6452acb28ae2faf67eedf6a3f35cc52');
+  amplitude.getInstance().init(ampliduteAppId);
 };
 
 export const setAmplitudeUserDevice = installationToken => {

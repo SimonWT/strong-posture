@@ -1,16 +1,20 @@
 import { useEffect } from 'react'
 import smartlookClient from 'smartlook-client'
 
-const smartAppId = '3c69b42fa69a18b1e00c837f070776e7a86b9068'
+const smartAppId = import.meta.env.VITE_SMARTLOOK_APP_ID
 
 const useSmartlook = () => {
   useEffect(() => {
-    if (smartAppId && !!window.smartlook && import.meta.env.MODE === 'production') {
+    if (
+      smartAppId &&
+      import.meta.env.MODE === 'production'
+    ) {
+      console.log('Smartlook connected')
       smartlookClient.init(smartAppId)
     }
   }, [])
 
-  return 
+  return
 }
 
 export default useSmartlook
