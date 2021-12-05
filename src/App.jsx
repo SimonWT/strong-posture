@@ -14,6 +14,7 @@ import PostureRecognition from './components/PostureRecognition/PostureRecogniti
 import TestNotifications from './components/TestNotifications'
 
 import useSettings from './utils/useSettings'
+import useSmartlook from './utils/useSmartlook'
 
 
 function App (props) {
@@ -43,6 +44,7 @@ function App (props) {
   const [videoStream, setVideoStream] = useState(undefined)
 
   useSettings(settings, setSettings, setLoading)
+  useSmartlook()
 
   return (
     <Router>
