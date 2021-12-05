@@ -25,7 +25,9 @@ jobs:
           envkey_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           envkey_SMARTLOOK_APP_ID: ${{ secrets.SMARTLOOK_APP_ID }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          SMARTLOOK_APP_ID: ${{ secrets.SMARTLOOK_APP_ID }}
           file_name: .env
+      - run: cat .env
       - run: npm ci
       - run: npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
