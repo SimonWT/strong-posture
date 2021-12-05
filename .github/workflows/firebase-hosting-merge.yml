@@ -22,8 +22,9 @@ jobs:
         uses: SpicyPizza/create-envfile@v1
         with:
           envkey_DEBUG: false
-          envkey_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          envkey_SMARTLOOK_APP_ID: ${{ secrets.SMARTLOOK_APP_ID }}
+          envkey_VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          envkey_VITE_SMARTLOOK_APP_ID: ${{ secrets.SMARTLOOK_APP_ID }}
+          envkey_VITE_ENV_SECRET: "from github actions"
           file_name: .env
       - run: cat .env
       - run: npm ci

@@ -8,6 +8,8 @@ import { initAmplitude } from './utils/amplitude'
 
 initAmplitude()
 
+console.log('env secret', import.meta.env)
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

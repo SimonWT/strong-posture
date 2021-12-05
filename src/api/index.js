@@ -1,7 +1,7 @@
 import axios from "axios";
 
 function getToken() {
-    return process.env.API_TOKEN
+    return null //process.env.API_TOKEN
 }
 
 const api = axios.create({

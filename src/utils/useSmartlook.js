@@ -1,14 +1,12 @@
 import { useEffect } from 'react'
 import smartlookClient from 'smartlook-client'
 
-const smartAppId = process.env.SMARTLOOK_APP_ID
+const smartAppId = '3c69b42fa69a18b1e00c837f070776e7a86b9068'
 
 const useSmartlook = () => {
   useEffect(() => {
-      console.log('im here', smartAppId, process.env)
-    if (smartAppId && !!window.smartlook && process.env.NODE_ENV === 'production') {
+    if (smartAppId && !!window.smartlook && import.meta.env.NODE_ENV === 'production') {
       smartlookClient.init(smartAppId)
-      console.log('im here 2', )
     }
   }, [])
 
