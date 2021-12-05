@@ -21,8 +21,10 @@ jobs:
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v1
         with:
-          envkey_SFIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          envkey_DEBUG: false
+          envkey_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           envkey_SMARTLOOK_APP_ID: ${{ secrets.SMARTLOOK_APP_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           file_name: .env
       - run: npm ci
       - run: npm run build
