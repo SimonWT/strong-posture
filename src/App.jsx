@@ -16,6 +16,8 @@ import TestNotifications from './components/TestNotifications'
 import useSettings from './utils/useSettings'
 import useSmartlook from './utils/useSmartlook'
 
+import { initUser } from './utils/userStorage'
+
 
 function App (props) {
 
@@ -45,6 +47,8 @@ function App (props) {
 
   useSettings(settings, setSettings, setLoading)
   useSmartlook()
+
+  initUser()
 
   return (
     <Router>

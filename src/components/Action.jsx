@@ -16,6 +16,8 @@ import useAudio from '../utils/useAudio'
 import useNotifications from '../utils/useNotifications'
 
 import { getSecondsFromTime } from '../utils/helpers'
+import { train, classify } from './PostureRecognition/classification'
+import { getStorage } from '../utils/userStorage'
 
 import { sendAmplitudeData } from '../utils/amplitude'
 
@@ -43,6 +45,7 @@ function Action (props) {
     const [recogntitionTicks, setRecogntitionTicks] = useState(0)
     const [isUserTimerInputChaged, setUserTimerInputChaged] = useState(false)
     const [slidingWindow, setSlidingWindow] = useState([])
+    const [poseKeypoints, setPostKeypoints] = useState([])
 
     const badImgsRef = React.createRef();
     const gameRef = useRef();
@@ -52,6 +55,7 @@ function Action (props) {
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
+    const userId = getStorage().userId
 
     function getSavedTimer () {
         const lsValue = localStorage.getItem('user-timer-input') // "15:00"
@@ -223,20 +227,63 @@ function Action (props) {
     //     setRecogntitionTicks(ticks => ticks + 1)
     // }
 
-    function emitIsPostureCorrect (payload) {
-        gameRef.current.somethingonposuture(payload) 
-        setIsPostureCorrect(payload)
+    function emitIsPostureCorrect (isPostureCorrect, keypoints) {
+        // gameRef.current.somethingonposuture(isPostureCorrect)
+        // setIsPostureCorrect(isPostureCorrect)
         // increaseTicks()
-        setSlidingWindow([...slidingWindow, payload ? 1 : 0])
-        sendAmplitudeData('recognition-result', { isCorrect: payload })
+        setPostKeypoints(keypoints)
+        // setSlidingWindow([...slidingWindow, isPostureCorrect ? 1 : 0])
+        // sendAmplitudeData('recognition-result', { isCorrect: isPostureCorrect })
     }
+
+
+    useEffect(() => {
+        let timeout;
+        if (poseKeypoints.length > 0) {
+            if ((totalSeconds - seconds) <= 3) {
+                train(poseKeypoints, true, userId)
+            }
+        }
+        return () => {
+            clearTimeout(timeout);
+        };
+    }, [poseKeypoints])
+
+    let recognitionTimer
+    useEffect(() => {
+        if (timerState === TIMER_ACTIVE) {
+            if (!recognitionTimer)
+                recognitionTimer = workerTimers.setInterval(() => {
+                    setRecogntitionTicks(ticks => ticks + 1)
+                }, 1000)
+        } else {
+            if (recognitionTimer){ 
+                console.log('TTTTT', timerState, recognitionTimer)
+                workerTimers.clearInterval(recognitionTimer)
+            }
+        }
+        return () => {
+            workerTimers.clearInterval(recognitionTimer)
+        }
+    }, [timerState])
+
+    useEffect(async () => {
+        if (totalSeconds - seconds <= 3) return
+
+        const isPostureCorrect = await classify(poseKeypoints, userId)
+        setIsPostureCorrect(isPostureCorrect)
+        sendAmplitudeData('recognition-result', { isCorrect: isPostureCorrect })
+        gameRef.current.somethingonposuture(isPostureCorrect)
+        setSlidingWindow([...slidingWindow, isPostureCorrect ? 1 : 0])
+
+    }, [recogntitionTicks])
 
     return (
         <div className="action">
             {(props.permissions.video) ?
                 (
                     <div>{(timerState === TIMER_ACTIVE) && <GameView ref={gameRef} />}
-                        <PostureRecognition tickTimeOut={1} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} showVideo canvasWidth="300px" /></div>
+                        <PostureRecognition tickTimeOut={1} ref={recognitionRef} hideButtons={true} emitIsPostureCorrect={emitIsPostureCorrect} seconds={seconds} totalSeconds={totalSeconds} showVideo canvasWidth="300px" /></div>
                 )
                 :
                 (props.permissions.images && timerState === TIMER_ACTIVE &&

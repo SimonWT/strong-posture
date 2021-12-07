@@ -7,13 +7,14 @@ import * as posenet from '@tensorflow-models/posenet'
 
 
 const sleep = (milliseconds) => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds))
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
 const PostureRecognition = forwardRef((props, ref) => {
 
     const [isActive, setIsActive] = useState(false)
     const [stream, setStream] = useState(undefined)
+    const [localSeconds, setLocalSeconds] = useState(props.seconds)
     const [requestAnimationFrameIds, setRequestAnimationFrameIds] = useState([])
 
     function pushRequestId (id) {
@@ -91,6 +92,17 @@ const PostureRecognition = forwardRef((props, ref) => {
 
     }));
 
+    // Inference
+    function processPoses (keypoints) {
+        const key_points = {}
+        for (const point of keypoints) {
+            key_points[point.part] = point.position
+        }
+        const isPostureCorrect = determineIsPostureCorrect(key_points)
+        if (props.emitIsPostureCorrect)
+            props.emitIsPostureCorrect(isPostureCorrect, keypoints)
+    }
+
     function detectPoseInRealTime (video, net) {
         const canvas = document.getElementById('output')
         const ctx = canvas.getContext('2d')
@@ -161,22 +173,13 @@ const PostureRecognition = forwardRef((props, ref) => {
                     if (guiState.output.showBoundingBox) {
                         drawBoundingBox(keypoints, ctx)
                     }
-                    const key_points = {}
-                    for (const point of keypoints) {
-                        key_points[point.part] = point.position
-                    }
-                    console.log('Dlya Vitali,',  score, keypoints)
-                    const isPostureCorrect = determineIsPostureCorrect(key_points)
-                    if(props.emitIsPostureCorrect)
-                        props.emitIsPostureCorrect(isPostureCorrect)
-                    // if (isPostureCorrect) console.log('хороший мальчик')
-                    // else console.log('тварь выпрямись')
 
+                    processPoses(keypoints)
                 }
             })
 
             // console.log('isActive deep', isActive, video.srcObject)
-            const timeout = props.tickTimeOut ?? 0 
+            const timeout = props.tickTimeOut ?? 0
             if (video.srcObject.active)
                 setTimeout(() => {
                     const requestId = requestAnimationFrame(poseDetectionFrame)
@@ -234,7 +237,7 @@ const PostureRecognition = forwardRef((props, ref) => {
                     <button onClick={stop}>Stop</button></div>
             }
             {isActive &&
-                <div id='main' style={{ display: props.showVideo ? 'block':  'none' }}>
+                <div id='main' style={{ display: props.showVideo ? 'block' : 'none' }}>
                     <video id="video" playsInline style={{ display: 'none' }}>
                     </video>
                     <canvas id="output" style={{ width: props.canvasWidth }} />
