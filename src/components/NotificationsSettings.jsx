@@ -4,6 +4,7 @@ import { getSecondsFromTime, getStringTimeFromSeconds } from '../utils/helpers'
 import useAudio from '../utils/useAudio'
 import { sendAmplitudeData } from '../utils/amplitude'
 import { debounce } from "debounce";
+import { getStorage, updateStorage } from '../utils/userStorage'
 
 const trackAmplitudeIntervalChange = debounce((notificationType, value) => sendAmplitudeData('time-interval-changed', {
     notificationType, interval: value
@@ -16,8 +17,9 @@ function NotificationsSettings (props) {
     const [videoPermission, setVideoPermission] = useState(props.permissions.video);
     const [imagesPermission, setImagesPermission] = useState(props.permissions.images);
     const [switchKey, setSwitchKey] = useState(0)
+    const [userSound, setUserSound] = useState(getStorage().sound ?? 'treasure')
 
-    const [_, warmupAudio] = useAudio()
+    const [playSound, warmupAudio, playHurtSound, sounds] = useAudio()
 
     useEffect(() => {
         const { sound, notifications, video } = props.permissions
@@ -50,12 +52,12 @@ function NotificationsSettings (props) {
     function onVideoChange ({ checked }) {
         setVideoPermission(checked)
         props.setPermissions({ ...props.permissions, video: checked })
-        sendAmplitudeData('video-settings-to',  { isEnabled: checked })
+        sendAmplitudeData('video-settings-to', { isEnabled: checked })
     }
 
     function onImagesChange ({ checked }) {
         props.setPermissions({ ...props.permissions, images: checked })
-        sendAmplitudeData('image-settings-switched-to',  { isEnabled: checked })
+        sendAmplitudeData('image-settings-switched-to', { isEnabled: checked })
     }
 
     function onIntervalInput ($event, notificationType) {
@@ -64,6 +66,13 @@ function NotificationsSettings (props) {
         props.setTimeIntervals({ ...props.timeIntervals, [notificationType]: seconds })
 
         trackAmplitudeIntervalChange(notificationType, $event.target.value)
+    }
+
+    const onTuneInput = ($event) => {
+        const value = $event.target.value
+        setUserSound(value)
+        updateStorage('sound', value)
+        playSound()
     }
 
     return (
@@ -94,6 +103,17 @@ function NotificationsSettings (props) {
                     <TextField className="interval-input" type="time" value={getStringTimeFromSeconds(props.timeIntervals.video)} onInput={($event) => onIntervalInput($event, 'video')} />
                 } */}
             </li>
+            {(notifcationPermission || soundPermission) && <>
+                <p style={{marginTop: '10px'}}> Audio preference </p>
+                <li className="sound-setting">
+                   <span>Tune</span> <select name="tune" value={userSound} onInput={onTuneInput} id="tuneSelect" className="_U6nBC _2nHt_ select-input">
+                        {Object.keys(sounds).map(soundName =>
+                            <option value={soundName} key={soundName}>{soundName}</option>
+                        )}
+                    </select>
+                </li>
+            </>
+            }
         </ul>
     )
 }

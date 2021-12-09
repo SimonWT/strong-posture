@@ -305,3 +305,12 @@ code {
 ._53Md9 { 
   animation-duration: 3s !important;
 }
+
+.sound-setting {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  .playSoundIcon {
+    width: 20px;
+  }
+}

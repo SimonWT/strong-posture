@@ -35,6 +35,7 @@ const useAudio = () => {
       // const randomAudio = soundKeys[random]
       const userSound = getStorage().sound
       const audioName = userSound ?? 'treasure'
+      console.log('audioName', audioName)
       document.getElementById(`audio-${audioName}`).play();
       return
     }
