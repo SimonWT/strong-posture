@@ -31,7 +31,7 @@ const TIMER_ACTIVE = 'TIMER_ACTIVE'
 const TIMER_NULL = 'TIMER_NULL'
 const TIMER_DONE = 'TIMER_DONE'
 
-const POSTURE_TRESHOLD = 0.5
+const POSTURE_TRESHOLD = 0.5 // For analytical approach
 
 function Action (props) {
     const initTotalTime = !props.settings.useStopwatchInsteadOfTimer ? 15 * 60 : 0
@@ -51,7 +51,7 @@ function Action (props) {
     const gameRef = useRef();
     const recognitionRef = useRef()
 
-    const [toggleAudio, warmupAudio, playHurtSound, sounds] = useAudio()
+    const [playSound, warmupAudio, playHurtSound, sounds] = useAudio()
     const [notify, remindByNotification] = useNotifications(true)
 
     const location = useLocation()
@@ -69,7 +69,7 @@ function Action (props) {
             recognitionRef.current.stop()
         notify('You are awesome!!!', 'Nice posture, bro 👊')
         sendAmplitudeData('session-ended')
-        toggleAudio('levelCompletion')
+        playSound('levelCompletion')
     }
 
     function getPostureCorrectnessFromWindow () {
@@ -88,13 +88,14 @@ function Action (props) {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
                         remindByNotification()
                         // TODO: review in terms of UX
-                        toggleAudio('positiveNotification')
+                        // playSound('positiveNotification')
+                        playSound()
                     }
                     if (props.permissions.images && (opposite % props.timeIntervals.images === 0) && seconds !== totalSeconds) {
                         toggleBadImages()
                     }
                     if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
-                        toggleAudio()
+                        playSound()
                     }
                 } else {
                     if ((opposite % props.timeIntervals.notifications === 0) && seconds !== totalSeconds) {
@@ -102,13 +103,13 @@ function Action (props) {
                         if (!isPostureCorrect) {
                             remindByNotification()
                             // TODO: review in terms of UX
-                            toggleAudio('fluteAlert')
+                            playSound()
                         }
                     }
                     if (props.permissions.sound && (opposite % props.timeIntervals.sound === 0) && seconds !== totalSeconds) {
                         const isPostureCorrect = getPostureCorrectnessFromWindow()
                         if (!isPostureCorrect) {
-                            toggleAudio('fluteAlertLong')
+                            playSound()
                         }
                     }
                 }
@@ -258,7 +259,6 @@ function Action (props) {
                 }, 1000)
         } else {
             if (recognitionTimer){ 
-                console.log('TTTTT', timerState, recognitionTimer)
                 workerTimers.clearInterval(recognitionTimer)
             }
         }
