@@ -58,6 +58,7 @@ const App = (props) => {
 
   const [settings, setSettings] = useState({
     useStopwatchInsteadOfTimer: false,
+    useAnalyticalRecognition: false
   });
 
   const [isLoading, setLoading] = useState(true);
