@@ -362,7 +362,7 @@ function Action (props) {
             }
             {seconds <= 0 &&
                 <>
-                    <Button onClick={playAgain} className="main-big-button action-start">Play Again</Button>
+                    <Button onClick={playAgain} className="main-big-button action-start">Start new session</Button>
                     <div className="congrats-bottom">
                         <Link to="/" className="no-underline"><Button>Home</Button></Link>
                         {/* <Button onClick={playAgain}>Again</Button> */}

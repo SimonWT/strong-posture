@@ -22,6 +22,9 @@ code {
     font-weight: 500;
     font-size: 35px;
     line-height: 41px;
+    @media screen and (max-width: 550px) {
+      font-size: 25px;
+    }
   }
 }
 
@@ -257,6 +260,12 @@ code {
   padding: 0 4px;
   border-radius: 6px;
   border: 1px solid #808b9f;
+  input {
+    cursor: text;
+  }
+  &:hover {
+    border-color: black;
+  }
 }
 
 .notifications-settings {

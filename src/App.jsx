@@ -24,19 +24,31 @@ const App = (props) => {
 
   const isBrowserSupportNotifications = ('Notification' in window);
 
+  const notificationsState = getStorage()?.permissions?.notifications ? (isBrowserSupportNotifications ? Notification.permission === 'granted' : false) : false
+
   const [permissions, setPermissions] = useState({
-    notifications: isBrowserSupportNotifications ? Notification.permission === 'granted' : false,
-    sound: false,
-    video: false,
-    images: false,
+    notifications: notificationsState,
+    sound: getStorage()?.permissions?.sound ?? false,
+    video: getStorage()?.permissions?.video ?? false,
+    images: getStorage()?.permissions?.images ?? false,
   });
 
+  const updatePermissions = (permissions) => {
+    updateStorage('permissions', permissions)
+    setPermissions(permissions)
+  }
+
   const [timeIntervals, setTimeIntervals] = useState({
-    notifications: 60,
-    sound: 100,
-    video: 200,
-    images: 20,
+    notifications: getStorage()?.timeIntervals?.notifications ?? 60,
+    sound: getStorage()?.timeIntervals?.sound ?? 100,
+    video: getStorage()?.timeIntervals?.video ?? 200,
+    images: getStorage()?.timeIntervals?.images ?? 20,
   });
+
+  const updateTimeIntervals = (timeIntervals) => {
+    updateStorage('timeIntervals', timeIntervals)
+    setPermissions(timeIntervals)
+  }
 
   const [exp, setExp] = useState(getStorage().exp ?? 0);
   const increaseExp = (value) => {
@@ -63,17 +75,17 @@ const App = (props) => {
           <Route path="/action">
             <ExpScore exp={exp} />
             <Header
-              setPermissions={setPermissions}
+              setPermissions={updatePermissions}
               permissions={permissions}
               timeIntervals={timeIntervals}
-              setTimeIntervals={setTimeIntervals}
+              setTimeIntervals={updateTimeIntervals}
             />
             {!isLoading
-              && <Action permissions={permissions} setPermissions={setPermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} increaseExp={increaseExp} />}
+              && <Action permissions={permissions} setPermissions={updatePermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} increaseExp={increaseExp} />}
           </Route>
           <Route path="/permissions">
             <Permissions
-              setPermissions={setPermissions}
+              setPermissions={updatePermissions}
               permissions={permissions}
               setVideoStream={setVideoStream}
             />
