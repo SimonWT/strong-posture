@@ -8,7 +8,8 @@
     "build": "NODE_ENV=production vite build",
     "serve": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy-gh": "gh-pages -d dist",
+    "deploy-fb": "firebase deploy"
   },
   "dependencies": {
     "@tensorflow-models/posenet": "^2.2.2",

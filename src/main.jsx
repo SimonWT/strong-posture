@@ -6,7 +6,8 @@ import App from './App'
 
 import { initAmplitude } from './utils/amplitude'
 
-initAmplitude()
+if (import.meta.env.MODE === 'production')
+  initAmplitude()
 
 ReactDOM.render(
   <React.StrictMode>

@@ -135,6 +135,44 @@ code {
 
 .congrats-head {
   margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .gain-exp {
+    margin-top: 15px;
+    display: flex;
+    color: #f18d0f;
+    align-items: center;
+    font-size: 26px;
+    & span {
+      margin-right: 8px;
+    }
+    & img {
+      height: 48px;
+      width: 48px;
+    }
+  }
+}
+
+.gameScore {
+  div._cL4RU._3W7Om {
+    height: 30px;
+    --btn-height: 30px;
+  }
+  &__inner {
+    display: flex;
+    color: #f18d0f;
+    align-items: center;
+    font-size: 18px;
+    // padding: 10px;
+    & span {
+      margin-left: 6px;
+    }
+    & img {
+      height: 24px;
+      width: 24px;
+    }
+  }
 }
 
 .congrats-bottom {
@@ -302,7 +340,7 @@ code {
   }
 }
 
-._53Md9 { 
+._53Md9 {
   animation-duration: 3s !important;
 }
 

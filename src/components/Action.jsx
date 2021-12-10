@@ -24,7 +24,7 @@ import { sendAmplitudeData } from '../utils/amplitude'
 import completedTask from '../assets/svg/completedTask.svg'
 import playIcon from '../assets/svg/play.svg'
 import pauseIcon from '../assets/svg/pause.svg'
-
+import diamondIcon from '../assets/svg/diamondYellowRedStroke.svg'
 
 const TIMER_PAUSED = 'TIMER_PAUSED'
 const TIMER_ACTIVE = 'TIMER_ACTIVE'
@@ -67,6 +67,7 @@ function Action (props) {
         setTimerState(TIMER_DONE)
         if (props.permissions.video)
             recognitionRef.current.stop()
+        props.increaseExp(totalSeconds) // Gain game EXP
         notify('You are awesome!!!', 'Nice posture, bro 👊')
         sendAmplitudeData('session-ended')
         playSound('levelCompletion')
@@ -237,18 +238,17 @@ function Action (props) {
         // sendAmplitudeData('recognition-result', { isCorrect: isPostureCorrect })
     }
 
-
-    useEffect(() => {
-        let timeout;
-        if (poseKeypoints.length > 0) {
-            if ((totalSeconds - seconds) <= 3) {
-                train(poseKeypoints, true, userId)
-            }
-        }
-        return () => {
-            clearTimeout(timeout);
-        };
-    }, [poseKeypoints])
+    // useEffect(() => {
+    //     let timeout;
+    //     if (poseKeypoints.length > 0) {
+    //         if ((totalSeconds - seconds) <= 3) {
+    //             train(poseKeypoints, true, userId)
+    //         }
+    //     }
+    //     return () => {
+    //         clearTimeout(timeout);
+    //     };
+    // }, [poseKeypoints])
 
     let recognitionTimer
     useEffect(() => {
@@ -258,7 +258,7 @@ function Action (props) {
                     setRecogntitionTicks(ticks => ticks + 1)
                 }, 1000)
         } else {
-            if (recognitionTimer){ 
+            if (recognitionTimer) {
                 workerTimers.clearInterval(recognitionTimer)
             }
         }
@@ -268,14 +268,16 @@ function Action (props) {
     }, [timerState])
 
     useEffect(async () => {
-        if (totalSeconds - seconds <= 3) return
-
-        const isPostureCorrect = await classify(poseKeypoints, userId)
-        setIsPostureCorrect(isPostureCorrect)
-        sendAmplitudeData('recognition-result', { isCorrect: isPostureCorrect })
-        gameRef.current.somethingonposuture(isPostureCorrect)
-        setSlidingWindow([...slidingWindow, isPostureCorrect ? 1 : 0])
-
+        if (!poseKeypoints || poseKeypoints.length === 0) return
+        if ((totalSeconds - seconds) <= 5) {
+            train(poseKeypoints, true, userId)
+        } else {
+            const isPostureCorrect = await classify(poseKeypoints, userId)
+            setIsPostureCorrect(isPostureCorrect)
+            sendAmplitudeData('recognition-result', { isCorrect: isPostureCorrect })
+            gameRef.current.somethingonposuture(isPostureCorrect)
+            setSlidingWindow([...slidingWindow, isPostureCorrect ? 1 : 0])
+        }
     }, [recogntitionTicks])
 
     return (
@@ -293,7 +295,10 @@ function Action (props) {
                 <div className="congrats-head">
                     <img src={completedTask} alt="Congrats" />
                     <h1>Congrats!</h1>
-                    {/* <h2>{ seconds }</h2> */}
+                    <div className="gain-exp">
+                        <span>+{totalSeconds} </span>
+                        <img src={diamondIcon} alt="exp" />
+                    </div>
                 </div>
             }
             {timerState === TIMER_ACTIVE && (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) &&
