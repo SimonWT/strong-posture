@@ -136,7 +136,6 @@ function Action (props) {
         if (props.startTimerOnEnter) {
             start()
             props.setStartTimerOnEnter(false)
-            // history.replace({ ...history.location})
         }
     }, [props.startTimerOnEnter])
 

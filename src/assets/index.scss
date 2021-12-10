@@ -364,3 +364,15 @@ code {
     width: 20px;
   }
 }
+
+.correctness {
+  font-size: 18px;
+  line-height: 25px;
+  text-align: center;
+  .true {
+    color: green;
+  }
+  .false {
+    color: red;
+  }
+}

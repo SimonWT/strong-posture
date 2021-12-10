@@ -15,7 +15,13 @@ const GameView = forwardRef(({ isPostureCorrect }, ref) => {
     return (
         <div>
             {isPostureCorrect !== null &&
-                <>Is you posture correct? - {isPostureCorrect ? 'YES' : 'NO'}</>
+                <div className="correctness">
+                    { isPostureCorrect ? 
+                    <span className="true">Cool, correct!</span>
+                    :
+                    <span className="false">Not correct &#129324;</span>
+                    }
+                </div>
             }
         </div>
     )
