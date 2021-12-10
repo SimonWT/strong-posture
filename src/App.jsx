@@ -47,7 +47,7 @@ const App = (props) => {
 
   const updateTimeIntervals = (timeIntervals) => {
     updateStorage('timeIntervals', timeIntervals)
-    setPermissions(timeIntervals)
+    setTimeIntervals(timeIntervals)
   }
 
   const [exp, setExp] = useState(getStorage().exp ?? 0);
@@ -63,6 +63,8 @@ const App = (props) => {
   const [isLoading, setLoading] = useState(true);
 
   const [videoStream, setVideoStream] = useState(undefined);
+
+  const [startTimerOnEnter, setStartTimerOnEnter] = useState(false)
 
   useSettings(settings, setSettings, setLoading);
   useSmartlook();
@@ -81,13 +83,14 @@ const App = (props) => {
               setTimeIntervals={updateTimeIntervals}
             />
             {!isLoading
-              && <Action permissions={permissions} setPermissions={updatePermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} increaseExp={increaseExp} />}
+              && <Action permissions={permissions} setPermissions={updatePermissions} timeIntervals={timeIntervals} videoStream={videoStream} settings={settings} increaseExp={increaseExp}  startTimerOnEnter={startTimerOnEnter} setStartTimerOnEnter={setStartTimerOnEnter}/>}
           </Route>
           <Route path="/permissions">
             <Permissions
               setPermissions={updatePermissions}
               permissions={permissions}
               setVideoStream={setVideoStream}
+              setStartTimerOnEnter={setStartTimerOnEnter}
             />
           </Route>
           <Route path="/test">

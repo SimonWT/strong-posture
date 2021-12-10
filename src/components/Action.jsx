@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 
 import * as workerTimers from 'worker-timers';
 
@@ -34,6 +34,8 @@ const TIMER_DONE = 'TIMER_DONE'
 const POSTURE_TRESHOLD = 0.5 // For analytical approach
 
 function Action (props) {
+    let history = useHistory();
+
     const initTotalTime = !props.settings.useStopwatchInsteadOfTimer ? 15 * 60 : 0
 
     const [totalSeconds, setTotalSeconds] = useState(initTotalTime);
@@ -131,8 +133,12 @@ function Action (props) {
     // }, [recogntitionTicks])
 
     useEffect(() => {
-        if (location?.state?.startTimerOnEnter) start()
-    }, [location])
+        if (props.startTimerOnEnter) {
+            start()
+            props.setStartTimerOnEnter(false)
+            // history.replace({ ...history.location})
+        }
+    }, [props.startTimerOnEnter])
 
     function playAgain () {
         setSeconds(totalSeconds);
@@ -304,36 +310,38 @@ function Action (props) {
             {timerState === TIMER_ACTIVE && (seconds > 0 || props.settings.useStopwatchInsteadOfTimer) &&
                 <h1 className="action-title"> Keep your posture correctly! </h1>
             }
-
-            {
-                !props.settings.useStopwatchInsteadOfTimer ?
-                    <>
-                        {timerState === TIMER_NULL ?
-                            <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
-                            :
-                            <Card inset className="action-timer-card">
-                                <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
-                                    <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active' : ''}`}>
-                                        <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
-                                        {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
-                                    </div>
-                                </Timer>
-                            </Card>
-                        }
-                    </>
-                    :
-                    <>
-                        {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) ?
-                            <Stopwatch seconds={seconds} active={timerState === TIMER_ACTIVE} />
+            {timerState !== TIMER_DONE &&
+                <>
+                    {
+                        !props.settings.useStopwatchInsteadOfTimer ?
+                            <>
+                                {timerState === TIMER_NULL ?
+                                    <TextField className="time-input" type="time" value={userTimerInput} onInput={onTimeInput} />
+                                    :
+                                    <Card inset className="action-timer-card">
+                                        <Timer seconds={seconds} totalSeconds={totalSeconds} settings={props.settings}>
+                                            <div className={`time-input-on-run ${isUserTimerInputChaged ? 'is-active' : ''}`}>
+                                                <TextField className="time-input small" outlined type="time" value={userTimerInput} onChange={onTimeInputChange} />
+                                                {isUserTimerInputChaged && <Button className="ok-btn" onClick={onSubmitTimerInput} rounded outlined size='small'> OK </Button>}
+                                            </div>
+                                        </Timer>
+                                    </Card>
+                                }
+                            </>
                             :
                             <>
-                                <p style={{ fontSize: '20px' }}> You kept posture correct for</p>
-                                <span><h2 className="timer">{seconds}</h2>seconds</span>
+                                {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) ?
+                                    <Stopwatch seconds={seconds} active={timerState === TIMER_ACTIVE} />
+                                    :
+                                    <>
+                                        <p style={{ fontSize: '20px' }}> You kept posture correct for</p>
+                                        <span><h2 className="timer">{seconds}</h2>seconds</span>
+                                    </>
+                                }
                             </>
-                        }
-                    </>
+                    }
+                </>
             }
-
             {[TIMER_ACTIVE, TIMER_PAUSED].includes(timerState) &&
                 <div>
                     {!props.settings.useStopwatchInsteadOfTimer &&
@@ -362,7 +370,7 @@ function Action (props) {
             }
             {seconds <= 0 &&
                 <>
-                    <Button onClick={playAgain} className="main-big-button action-start">Start new session</Button>
+                    <Button onClick={playAgain} className="main-big-button action-start">Start a new session</Button>
                     <div className="congrats-bottom">
                         <Link to="/" className="no-underline"><Button>Home</Button></Link>
                         {/* <Button onClick={playAgain}>Again</Button> */}

@@ -15,6 +15,7 @@ function Permissions (props) {
             state: { startTimerOnEnter: true }
         }
         history.push(location);
+        props.setStartTimerOnEnter(true)
         sendAmplitudeData('user-response-on-asking-video', { userAnswer: false })
     }
 
@@ -42,6 +43,7 @@ function Permissions (props) {
             pathname: '/action',
             state: { startTimerOnEnter: true }
         }
+        props.setStartTimerOnEnter(true)
         sendAmplitudeData('user-response-on-asking-video', { userAnswer: true })
         history.push(location);
     }
