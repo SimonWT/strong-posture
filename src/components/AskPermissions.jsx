@@ -16,8 +16,13 @@ function AskPermissions (props) {
     const [toggleAudio, warmupAudio, playHurtSound] = useAudio()
 
     useEffect(() => {
-        if (getPermission() !== 'granted') {
-            setModalVisibility(true)
+        try {
+            if (getPermission() !== 'granted') {
+                setModalVisibility(true)
+            }
+        } catch (error) {
+            //Browser doen't support Notification
+            setModalVisibility(false)
         }
     }, [])
 
@@ -26,7 +31,14 @@ function AskPermissions (props) {
         setPushEnabled(false)
         setSwitchKey((value) => value += 1)
         console.log('permission 0', getPermission())
-        const requestedPermission = await requestPermission()
+
+        let requestedPermission
+        try {
+            requestedPermission = await requestPermission()
+        } catch (error) {
+            //Browser doen't support Notification
+            setModalVisibility(false)
+        }
         console.log('requestedPermission', requestedPermission)
         const permission = requestedPermission ?? getPermission()
         console.log('permission', permission)
@@ -34,9 +46,9 @@ function AskPermissions (props) {
         setPushEnabled(permission === 'granted')
         setSwitchKey((value) => value += 1)
         if (permission === 'granted') {
-            props.setPermissions({ ...props.permissions, notifications: true, sound: true})
+            props.setPermissions({ ...props.permissions, notifications: true, sound: true })
             setModalVisibility(false)
-        }else if(permission === 'denied') {
+        } else if (permission === 'denied') {
             props.setPermissions({ ...props.permissions, notifications: false, sound: true })
             setModalVisibility(false)
         }

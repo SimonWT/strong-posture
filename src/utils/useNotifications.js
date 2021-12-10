@@ -37,6 +37,7 @@ const useNotifications = (isSwEnabled) => {
           resolve(permission)
         )
       } else {
+        if(!('Notification' in window)) reject(false) 
         Notification.requestPermission((permission) => {
           resolve(permission)
         })
@@ -54,7 +55,7 @@ const useNotifications = (isSwEnabled) => {
 
   const notify = async (text, body) => {
     if (!('Notification' in window)) {
-      alert('This browser does not support desktop notification')
+      // alert('This browser does not support desktop notification')
       return
     }
     // Проверка разрешения на отправку уведомлений

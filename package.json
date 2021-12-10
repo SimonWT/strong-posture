@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "NODE_ENV=development vite",
+    "dev-host": "NODE_ENV=development vite --host",
     "dev-prod": "NODE_ENV=production vite --mode production",
     "build": "NODE_ENV=production vite build",
     "serve": "vite preview",

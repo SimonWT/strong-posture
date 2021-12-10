@@ -236,6 +236,9 @@ code {
       min-height: unset;
       font-size: 20px;
       padding: 0;
+      @media screen and (max-width: 400px) {
+        max-width: 70px;
+      }
     }
     ._3t8tT {
       display: none;
